@@ -8,6 +8,7 @@
 
 [![Build Status][build-badge]][build]
 [![Code Coverage][coverage-badge]][coverage]
+[![Greenkeeper badge](https://badges.greenkeeper.io/shellthor/jmd-scripts.svg)](https://greenkeeper.io/)
 [![version][version-badge]][package]
 [![downloads][downloads-badge]][npmcharts]
 [![MIT License][license-badge]][LICENSE]
@@ -21,8 +22,6 @@
 [![Tweet][twitter-badge]][twitter]
 
 ## The problem
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/shellthor/jmd-scripts.svg)](https://greenkeeper.io/)
 
 I want to make it easier to maintain my projects.
 
