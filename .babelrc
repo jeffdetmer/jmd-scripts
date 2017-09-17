@@ -1,0 +1,3 @@
+{
+  "presets": ["./src/config/babelrc"]
+}
