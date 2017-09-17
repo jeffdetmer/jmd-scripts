@@ -22,6 +22,8 @@
 
 ## The problem
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/shellthor/jmd-scripts.svg)](https://greenkeeper.io/)
+
 I want to make it easier to maintain my projects.
 
 ## This solution
