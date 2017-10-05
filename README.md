@@ -1,7 +1,7 @@
 <div align="center">
 <h1>jmd-scripts</h1>
 
-<strong>CLI for common scripts for my projects</strong>
+<p>CLI toolbox for common scripts for my projects</p>
 </div>
 
 <hr />
@@ -28,6 +28,20 @@ I want to make it easier to maintain my projects.
 
 This is a CLI that abstracts away all configuration for my open source projects
 for linting, testing, building, and more.
+
+## Table of Contents
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Inspiration](#inspiration)
+- [Other Solutions](#other-solutions)
+- [Contributors](#contributors)
+- [LICENSE](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Installation
 
