@@ -1,18 +1,18 @@
-const { ifAnyDep, parseEnv } = require('../utils');
+const {ifAnyDep, parseEnv} = require('../utils')
 
-const isTest = (process.env.BABEL_ENV || process.env.NODE_ENV) === 'test';
-const isPreact = parseEnv('BUILD_PREACT', false);
-const isRollup = parseEnv('BUILD_ROLLUP', false);
-const isUMD = process.env.BUILD_FORMAT === 'umd';
-const isWebpack = parseEnv('BUILD_WEBPACK', false);
-const treeshake = parseEnv('BUILD_TREESHAKE', isRollup || isWebpack);
-const alias = parseEnv('BUILD_ALIAS', isPreact ? { react: 'preact' } : null);
+const isTest = (process.env.BABEL_ENV || process.env.NODE_ENV) === 'test'
+const isPreact = parseEnv('BUILD_PREACT', false)
+const isRollup = parseEnv('BUILD_ROLLUP', false)
+const isUMD = process.env.BUILD_FORMAT === 'umd'
+const isWebpack = parseEnv('BUILD_WEBPACK', false)
+const treeshake = parseEnv('BUILD_TREESHAKE', isRollup || isWebpack)
+const alias = parseEnv('BUILD_ALIAS', isPreact ? {react: 'preact'} : null)
 
-const envModules = treeshake ? { modules: false } : {};
+const envModules = treeshake ? {modules: false} : {}
 const envTargets = isTest
-  ? { node: 'current' }
-  : isWebpack || isRollup ? { browsers: ['ie 11', 'ios 7'] } : { node: '8.5' };
-const envOptions = Object.assign({}, envModules, { targets: envTargets });
+  ? {node: 'current'}
+  : isWebpack || isRollup ? {browsers: ['ie 10', 'ios 7']} : {node: '4.5'}
+const envOptions = Object.assign({}, envModules, {targets: envTargets})
 
 module.exports = {
   presets: [
@@ -27,16 +27,16 @@ module.exports = {
     alias
       ? [
           require.resolve('babel-plugin-module-resolver'),
-          { root: ['./src'], alias },
+          {root: ['./src'], alias},
         ]
       : null,
     isPreact
-      ? [require.resolve('babel-plugin-transform-react-jsx'), { pragma: 'h' }]
+      ? [require.resolve('babel-plugin-transform-react-jsx'), {pragma: 'h'}]
       : null,
     isPreact
       ? [
           require.resolve('babel-plugin-transform-react-remove-prop-types'),
-          { removeImport: true },
+          {removeImport: true},
         ]
       : null,
     isUMD
@@ -46,4 +46,4 @@ module.exports = {
     require.resolve('babel-plugin-transform-object-rest-spread'),
     require.resolve('babel-plugin-minify-dead-code-elimination'),
   ].filter(Boolean),
-};
+}
