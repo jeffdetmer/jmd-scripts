@@ -1,1 +1,1 @@
-module.exports = require('./dist/config/babelrc'); // eslint-disable-line import/no-unresolved
+module.exports = require('./dist/config/babelrc')

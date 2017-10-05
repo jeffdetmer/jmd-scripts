@@ -1,20 +1,21 @@
-const [executor] = process.argv;
+const {resolveKcdScripts, resolveBin} = require('../utils')
 
-const scripts = `${executor} ${require.resolve('../')}`;
+const kcdScripts = resolveKcdScripts()
+const doctoc = resolveBin('doctoc')
 
 module.exports = {
+  concurrent: false,
   linters: {
     '**/*.+(js|json|less|css|ts)': [
-      `${scripts} format`,
-      `${scripts} lint`,
-      `${scripts} test --findRelatedTests`,
+      `${kcdScripts} format`,
+      `${kcdScripts} lint`,
+      `${kcdScripts} test --findRelatedTests`,
       'git add',
     ],
     '.all-contributorsrc': [
-      // lint-staged passes arguments to the scripts.
-      // to avoid passing these arguments, we do the echo thing
-      `${scripts} contributors generate`,
+      `${kcdScripts} contributors generate`,
       'git add README.md',
     ],
+    'README.md': [`${doctoc} --maxlevel 2 --notitle`, 'git add'],
   },
-};
+}
