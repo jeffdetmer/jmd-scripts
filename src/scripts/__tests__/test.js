@@ -1,6 +1,6 @@
 import cases from 'jest-in-case'
 
-jest.mock('jest', () => ({run: jest.fn()}))
+jest.mock('jest-cli', () => ({run: jest.fn()}))
 jest.mock('../../config/jest.config', () => ({builtInConfig: true}))
 
 // this removes the quotes around strings...
@@ -21,7 +21,7 @@ cases(
     precommit = 'false',
   }) => {
     // beforeEach
-    const {run: jestRunMock} = require('jest')
+    const {run: jestRunMock} = require('jest-cli')
     const originalArgv = process.argv
     const prevCI = process.env.CI
     const prevPrecommit = process.env.SCRIPTS_PRECOMMIT
