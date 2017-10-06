@@ -22,4 +22,4 @@ const config =
     ? ['--config', JSON.stringify(require('../config/jest.config'))]
     : []
 
-require('jest').run([...config, ...watch, ...args])
+require('jest-cli').run([...config, ...watch, ...args])
