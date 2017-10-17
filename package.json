@@ -19,12 +19,7 @@
     "validate": "node src validate",
     "precommit": "node src precommit"
   },
-  "files": [
-    "dist",
-    "babel.js",
-    "eslint.js",
-    "config.js"
-  ],
+  "files": ["dist", "babel.js", "eslint.js", "config.js"],
   "keywords": [],
   "author": "Jeff Detmer <jeff.detmer@gmail.com> (http://jeffdetmer.com/)",
   "license": "MIT",
@@ -75,10 +70,7 @@
     "yargs-parser": "^8.0.0"
   },
   "eslintConfig": {
-    "extends": [
-      "kentcdodds",
-      "kentcdodds/jest"
-    ],
+    "extends": ["kentcdodds", "kentcdodds/jest"],
     "rules": {
       "no-process-exit": "off",
       "import/no-dynamic-require": "off",
@@ -87,11 +79,7 @@
       "no-nested-ternary": "off"
     }
   },
-  "eslintIgnore": [
-    "node_modules",
-    "coverage",
-    "dist"
-  ],
+  "eslintIgnore": ["node_modules", "coverage", "dist"],
   "repository": {
     "type": "git",
     "url": "https://github.com/shellthor/jmd-scripts.git"
