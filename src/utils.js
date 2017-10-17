@@ -60,24 +60,28 @@ const hasScript = hasPkgSubProp('scripts')
 const hasPeerDep = hasPkgSubProp('peerDependencies')
 const hasDep = hasPkgSubProp('dependencies')
 const hasDevDep = hasPkgSubProp('devDependencies')
-const hasAnyDep = (...args) =>
+const hasAnyDep = args =>
   [hasDep, hasDevDep, hasPeerDep].some(fn => fn(...args))
 
 const ifPeerDep = ifPkgSubProp('peerDependencies')
 const ifDep = ifPkgSubProp('dependencies')
 const ifDevDep = ifPkgSubProp('devDependencies')
-const ifAnyDep = (deps, t, f) => (hasAnyDep(deps) ? t : f)
+const ifAnyDep = (deps, t, f) => (hasAnyDep(arrify(deps)) ? t : f)
 const ifScript = ifPkgSubProp('scripts')
 
 function parseEnv(name, def) {
-  if (
-    process.env.hasOwnProperty(name) &&
-    process.env[name] &&
-    process.env[name] !== 'undefined'
-  ) {
+  if (envIsSet(name)) {
     return JSON.parse(process.env[name])
   }
   return def
+}
+
+function envIsSet(name) {
+  return (
+    process.env.hasOwnProperty(name) &&
+    process.env[name] &&
+    process.env[name] !== 'undefined'
+  )
 }
 
 function getConcurrentlyArgs(scripts, {killOthers = true} = {}) {
@@ -115,21 +119,40 @@ function getConcurrentlyArgs(scripts, {killOthers = true} = {}) {
   ].filter(Boolean)
 }
 
+function isOptedOut(key, t = true, f = false) {
+  if (!fs.existsSync(fromRoot('.opt-out'))) {
+    return f
+  }
+  const contents = fs.readFileSync(fromRoot('.opt-out'), 'utf-8')
+  return contents.includes(key) ? t : f
+}
+
+function isOptedIn(key, t = true, f = false) {
+  if (!fs.existsSync(fromRoot('.opt-in'))) {
+    return f
+  }
+  const contents = fs.readFileSync(fromRoot('.opt-in'), 'utf-8')
+  return contents.includes(key) ? t : f
+}
+
 module.exports = {
+  appDirectory,
+  envIsSet,
+  fromRoot,
+  getConcurrentlyArgs,
+  hasFile,
+  hasPkgProp,
+  hasScript,
+  ifAnyDep,
+  ifDep,
   ifDevDep,
+  ifFile,
   ifPeerDep,
   ifScript,
-  ifDep,
-  ifAnyDep,
-  hasPkgProp,
-  appDirectory,
-  fromRoot,
-  hasScript,
-  resolveBin,
-  resolveKcdScripts,
+  isOptedIn,
+  isOptedOut,
   parseEnv,
   pkg,
-  hasFile,
-  ifFile,
-  getConcurrentlyArgs,
+  resolveBin,
+  resolveKcdScripts,
 }
