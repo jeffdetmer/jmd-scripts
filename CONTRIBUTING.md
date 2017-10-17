@@ -67,6 +67,16 @@ inside:
 pre-commit
 ```
 
+One of the things that the git hooks does is automatically format the files you
+change. It does this by reformating the entire file and running `git add` on
+the file after. This breaks workflows where you're trying to commit portions of
+the file only. You can always run your commit with `--no-verify`, but if this
+is a bummer to your workflow, you can add an `.opt-out` file with the contents:
+
+```
+autoformat
+```
+
 ## Help needed
 
 Please checkout the [the open issues][issues]
