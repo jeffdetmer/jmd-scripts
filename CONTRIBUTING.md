@@ -55,7 +55,7 @@ Please make sure to run the tests before you commit your changes. You can run
 `npm run test:update` which will update any snapshots that need updating.
 Make sure to include those changes (if they exist) in your commit.
 
-### opt into git hooks
+### opt in/out of git hooks
 
 There are git hooks set up with this project that are automatically installed
 when you install dependencies. They're really handy, but are turned off by
