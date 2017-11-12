@@ -1,10 +1,7 @@
 import cases from 'jest-in-case'
+import {unquoteSerializer} from './helpers/serializers'
 
-// this removes the quotes around strings...
-expect.addSnapshotSerializer({
-  print: val => val,
-  test: val => typeof val === 'string',
-})
+expect.addSnapshotSerializer(unquoteSerializer)
 
 cases(
   'validate',
@@ -78,10 +75,14 @@ function setupWithScripts(scripts = ['test', 'lint', 'build', 'flow']) {
 
 function setupWithArgs(args = []) {
   return function setup() {
+    const utils = require('../../utils')
+    const originalResolveBin = utils.resolveBin
+    utils.resolveBin = (modName, {executable = modName} = {}) => executable
     const originalArgv = process.argv
     process.argv = ['node', '../format', ...args]
     return function teardown() {
       process.argv = originalArgv
+      utils.resolveBin = originalResolveBin
     }
   }
 }

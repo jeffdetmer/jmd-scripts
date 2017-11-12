@@ -1,27 +1,19 @@
 import path from 'path'
+import slash from 'slash'
 import cases from 'jest-in-case'
+import {unquoteSerializer} from '../scripts/__tests__/helpers/serializers'
 
-// this removes the quotes around strings...
-const projectRoot = path.join(__dirname, '../../').replace(/\\/g, '/')
+const projectRoot = path.join(__dirname, '../../')
 
+expect.addSnapshotSerializer(unquoteSerializer)
 expect.addSnapshotSerializer({
-  print(val) {
-    return val.split(projectRoot).join('<PROJECT_ROOT>/')
-  },
-  test(val) {
-    return typeof val === 'string'
-  },
+  print: val => slash(val.replace(projectRoot, '<PROJECT_ROOT>/')),
+  test: val => typeof val === 'string' && val.includes(projectRoot),
 })
 
 cases(
   'format',
-  ({
-    snapshotLog = false,
-    throws = false,
-    setup = () => () => {},
-    signal = false,
-    args = [],
-  }) => {
+  ({snapshotLog = false, throws = false, signal = false, args = []}) => {
     // beforeEach
     const {sync: crossSpawnSyncMock} = require('cross-spawn')
     const originalExit = process.exit
@@ -29,8 +21,6 @@ cases(
     const originalLog = console.log
     process.exit = jest.fn()
     console.log = jest.fn()
-    const teardown = setup()
-
     try {
       // tests
       process.argv = ['node', '../', ...args]
@@ -58,7 +48,6 @@ cases(
         throw error
       }
     } finally {
-      teardown()
       // afterEach
       process.exit = originalExit
       process.argv = originalArgv
