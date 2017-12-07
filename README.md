@@ -11,7 +11,7 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/shellthor/jmd-scripts.svg)](https://greenkeeper.io/)
 [![version][version-badge]][package]
 [![downloads][downloads-badge]][npmcharts]
-[![MIT License][license-badge]][LICENSE]
+[![MIT License][license-badge]][license]
 
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 [![PRs Welcome][prs-badge]][prs]
@@ -31,16 +31,17 @@ This is a CLI that abstracts away all configuration for my open source projects
 for linting, testing, building, and more.
 
 ## Table of Contents
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
-- [Installation](#installation)
-- [Usage](#usage)
-- [Inspiration](#inspiration)
-- [Other Solutions](#other-solutions)
-- [Contributors](#contributors)
-- [LICENSE](#license)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Inspiration](#inspiration)
+* [Other Solutions](#other-solutions)
+* [Contributors](#contributors)
+* [LICENSE](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -121,8 +122,11 @@ here!
 Thanks goes to these people ([emoji key][emojis]):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+
 | [<img src="https://avatars1.githubusercontent.com/u/649578?v=4" width="100px;"/><br /><sub>Jeff Detmer</sub>](http://www.jeffdetmer.com)<br />[💻](https://github.com/shellthor/jmd-scripts/commits?author=shellthor "Code") [📖](https://github.com/shellthor/jmd-scripts/commits?author=shellthor "Documentation") [🚇](#infra-shellthor "Infrastructure (Hosting, Build-Tools, etc)") |
-| :---: |
+| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors][all-contributors] specification.

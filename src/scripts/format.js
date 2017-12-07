@@ -12,6 +12,7 @@ const hereRelative = p => here(p).replace(process.cwd(), '.')
 const useBuiltinConfig =
   !args.includes('--config') &&
   !hasFile('.prettierrc') &&
+  !hasFile('prettier.config.js') &&
   !hasPkgProp('prettierrc')
 const config = useBuiltinConfig
   ? ['--config', hereRelative('../config/prettierrc.js')]
@@ -30,7 +31,9 @@ const write = args.includes('--no-write') ? [] : ['--write']
 // This way the prettierignore will be applied
 const relativeArgs = args.map(a => a.replace(`${process.cwd()}/`, ''))
 
-const filesToApply = parsedArgs._.length ? [] : ['**/*.+(js|json|less|css|ts)']
+const filesToApply = parsedArgs._.length
+  ? []
+  : ['**/*.+(js|json|less|css|ts|md)']
 
 const result = spawn.sync(
   resolveBin('prettier'),

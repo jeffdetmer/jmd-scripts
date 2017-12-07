@@ -34,7 +34,7 @@ const input =
 
 const filenameSuffix = process.env.BUILD_FILENAME_SUFFIX || ''
 const filenamePrefix =
-  process.env.BUILD_FILENAME_PREFIX || isPreact ? 'preact/' : ''
+  process.env.BUILD_FILENAME_PREFIX || (isPreact ? 'preact/' : '')
 const globals = parseEnv(
   'BUILD_GLOBALS',
   isPreact ? Object.assign(defaultGlobals, {preact: 'preact'}) : defaultGlobals,

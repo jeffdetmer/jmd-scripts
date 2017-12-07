@@ -19,12 +19,19 @@
     "validate": "node src validate",
     "precommit": "node src precommit"
   },
-  "files": ["dist", "babel.js", "eslint.js", "config.js"],
+  "files": [
+    "dist",
+    "babel.js",
+    "eslint.js",
+    "config.js",
+    "prettier.js",
+    "jest.js"
+  ],
   "keywords": [],
   "author": "Jeff Detmer <jeff.detmer@gmail.com> (http://jeffdetmer.com/)",
   "license": "MIT",
   "dependencies": {
-    "all-contributors-cli": "4.8.1",
+    "all-contributors-cli": "4.10.0",
     "arrify": "1.0.1",
     "babel-cli": "6.26.0",
     "babel-jest": "21.2.0",
