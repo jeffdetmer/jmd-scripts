@@ -17,17 +17,20 @@ const envOptions = Object.assign({}, envModules, {targets: envTargets})
 module.exports = {
   presets: [
     [require.resolve('babel-preset-env'), envOptions],
-    ifAnyDep(['react', 'preact'], require.resolve('babel-preset-react')),
+    ifAnyDep(['react', 'preact'], require.resolve('babel-preset-react'))
   ].filter(Boolean),
   plugins: [
     require.resolve('babel-macros'),
     isRollup ? require.resolve('babel-plugin-external-helpers') : null,
     // we're actually not using JSX at all, but I'm leaving this
     // in here just in case we ever do (this would be easy to miss).
+    isWebpack
+      ? require.resolve('babel-plugin-dynamic-import-webpack')
+      : require.resolve('babel-plugin-dynamic-import-node'),
     alias
       ? [
           require.resolve('babel-plugin-module-resolver'),
-          {root: ['./src'], alias},
+          {root: ['./src'], alias}
         ]
       : null,
     isPreact
@@ -36,7 +39,7 @@ module.exports = {
     isPreact
       ? [
           require.resolve('babel-plugin-transform-react-remove-prop-types'),
-          {removeImport: true},
+          {removeImport: true}
         ]
       : null,
     isUMD
@@ -44,6 +47,6 @@ module.exports = {
       : null,
     require.resolve('babel-plugin-transform-class-properties'),
     require.resolve('babel-plugin-transform-object-rest-spread'),
-    require.resolve('babel-plugin-minify-dead-code-elimination'),
-  ].filter(Boolean),
+    require.resolve('babel-plugin-minify-dead-code-elimination')
+  ].filter(Boolean)
 }

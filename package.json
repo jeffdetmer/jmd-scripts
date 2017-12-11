@@ -36,6 +36,8 @@
     "babel-cli": "6.26.0",
     "babel-jest": "21.2.0",
     "babel-macros": "1.2.0",
+    "babel-plugin-dynamic-import-node": "^1.2.0",
+    "babel-plugin-dynamic-import-webpack": "^1.0.2",
     "babel-plugin-external-helpers": "6.22.0",
     "babel-plugin-minify-dead-code-elimination": "0.2.0",
     "babel-plugin-module-resolver": "3.0.0",
@@ -82,7 +84,10 @@
     "slash": "1.0.0"
   },
   "eslintConfig": {
-    "extends": ["kentcdodds", "kentcdodds/jest"],
+    "extends": [
+      "kentcdodds",
+      "kentcdodds/jest"
+    ],
     "rules": {
       "no-process-exit": "off",
       "import/no-dynamic-require": "off",
@@ -91,7 +96,11 @@
       "no-nested-ternary": "off"
     }
   },
-  "eslintIgnore": ["node_modules", "coverage", "dist"],
+  "eslintIgnore": [
+    "node_modules",
+    "coverage",
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/shellthor/jmd-scripts.git"
