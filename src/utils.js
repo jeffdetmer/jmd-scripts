@@ -31,7 +31,7 @@ function resolveBin(modName, {executable = modName, cwd = process.cwd()} = {}) {
     const {bin} = require(modPkgPath)
     const binPath = typeof bin === 'string' ? bin : bin[executable]
     const fullPathToBin = path.join(modPkgDir, binPath)
-    
+
     if (fullPathToBin === pathFromWhich) {
       return executable
     }
