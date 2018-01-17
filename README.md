@@ -38,6 +38,7 @@ for linting, testing, building, and more.
 
 * [Installation](#installation)
 * [Usage](#usage)
+  * [Overriding Config](#overriding-config)
 * [Inspiration](#inspiration)
 * [Other Solutions](#other-solutions)
 * [Contributors](#contributors)
@@ -99,6 +100,11 @@ Or, for `jest`:
 const {jest: jestConfig} = require('jmd-scripts/config')
 module.exports = Object.assign(jestConfig, {
   // your overrides here
+
+  // for test written in Typescript, add:
+  transform: {
+    '\\.(ts|tsx)$': '<rootDir>/node_modules/ts-jest/preprocessor.js',
+  },
 })
 ```
 
@@ -123,7 +129,7 @@ Thanks goes to these people ([emoji key][emojis]):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 
-| [<img src="https://avatars1.githubusercontent.com/u/649578?v=4" width="100px;"/><br /><sub>Jeff Detmer</sub>](http://www.jeffdetmer.com)<br />[💻](https://github.com/shellthor/jmd-scripts/commits?author=shellthor "Code") [📖](https://github.com/shellthor/jmd-scripts/commits?author=shellthor "Documentation") [🚇](#infra-shellthor "Infrastructure (Hosting, Build-Tools, etc)") |
+| [<img src="https://avatars1.githubusercontent.com/u/649578?v=4" width="100px;"/><br /><sub>Jeff Detmer</sub>](http://www.jeffdetmer.com)<br />[💻](https://github.com/shellthor/jmd-scripts/commits?author=shellthor 'Code') [📖](https://github.com/shellthor/jmd-scripts/commits?author=shellthor 'Documentation') [🚇](#infra-shellthor 'Infrastructure (Hosting, Build-Tools, etc)') |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 
 
