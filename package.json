@@ -31,7 +31,7 @@
   "author": "Jeff Detmer <jeff.detmer@gmail.com> (http://jeffdetmer.com/)",
   "license": "MIT",
   "dependencies": {
-    "all-contributors-cli": "4.10.2",
+    "all-contributors-cli": "4.11.0",
     "arrify": "1.0.1",
     "babel-cli": "6.26.0",
     "babel-jest": "22.4.1",
