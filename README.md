@@ -16,6 +16,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 [![PRs Welcome][prs-badge]][prs]
 [![Code of Conduct][coc-badge]][coc]
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fshellthor%2Fjmd-scripts.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fshellthor%2Fjmd-scripts?ref=badge_shield)
 
 [![Watch on GitHub][github-watch-badge]][github-watch]
 [![Star on GitHub][github-star-badge]][github-star]
@@ -168,3 +169,6 @@ MIT
 [emojis]: https://github.com/kentcdodds/all-contributors#emoji-key
 [all-contributors]: https://github.com/kentcdodds/all-contributors
 [kcd-scripts]: https://github.com/kentcdodds/kcd-scripts
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fshellthor%2Fjmd-scripts.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fshellthor%2Fjmd-scripts?ref=badge_large)
