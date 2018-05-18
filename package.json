@@ -59,7 +59,7 @@
     "husky": "0.15.0-rc.7",
     "is-ci": "1.1.0",
     "jest": "22.4.2",
-    "lint-staged": "7.1.0",
+    "lint-staged": "7.1.1",
     "lodash.camelcase": "4.3.0",
     "lodash.has": "4.5.2",
     "mkdirp": "0.5.1",
