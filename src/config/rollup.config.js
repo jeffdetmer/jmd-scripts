@@ -1,13 +1,26 @@
 const path = require('path')
+const glob = require('glob')
 const camelcase = require('lodash.camelcase')
 const rollupBabel = require('rollup-plugin-babel')
 const commonjs = require('rollup-plugin-commonjs')
 const nodeResolve = require('rollup-plugin-node-resolve')
 const json = require('rollup-plugin-json')
-const uglify = require('rollup-plugin-uglify')
+const replace = require('rollup-plugin-replace')
+const {terser} = require('rollup-plugin-terser')
 const nodeBuiltIns = require('rollup-plugin-node-builtins')
 const nodeGlobals = require('rollup-plugin-node-globals')
-const {pkg, hasFile, hasPkgProp, parseEnv, ifFile} = require('../utils')
+const {sizeSnapshot} = require('rollup-plugin-size-snapshot')
+const omit = require('lodash.omit')
+const {
+  pkg,
+  hasFile,
+  hasPkgProp,
+  parseEnv,
+  ifFile,
+  fromRoot,
+  uniq,
+  writeExtraEntry,
+} = require('../utils')
 
 const here = p => path.join(__dirname, p)
 const capitalize = s => s[0].toUpperCase() + s.slice(1)
@@ -28,9 +41,27 @@ const defaultGlobals = Object.keys(pkg.peerDependencies || {}).reduce(
 
 const defaultExternal = Object.keys(pkg.peerDependencies || {})
 
-const input =
-  process.env.BUILD_INPUT ||
-  ifFile(`src/${format}-entry.js`, `src/${format}-entry.js`, 'src/index.js')
+const input = glob.sync(
+  fromRoot(
+    process.env.BUILD_INPUT ||
+      ifFile(
+        `src/${format}-entry.js`,
+        `src/${format}-entry.js`,
+        'src/index.js',
+      ),
+  ),
+)
+const codeSplitting = input.length > 1
+
+if (
+  codeSplitting &&
+  uniq(input.map(single => path.basename(single))).length !== input.length
+) {
+  throw new Error(
+    'Filenames of code-splitted entries should be unique to get deterministic output filenames.' +
+      `\nReceived those: ${input}.`,
+  )
+}
 
 const filenameSuffix = process.env.BUILD_FILENAME_SUFFIX || ''
 const filenamePrefix =
@@ -50,7 +81,12 @@ if (isPreact) {
   external.splice(external.indexOf('react'), 1)
 }
 
+const externalPattern = new RegExp(`^(${external.join('|')})($|/)`)
+const externalPredicate =
+  external.length === 0 ? () => false : id => externalPattern.test(id)
+
 const esm = format === 'esm'
+const umd = format === 'umd'
 
 const filename = [
   pkg.name,
@@ -62,16 +98,16 @@ const filename = [
   .filter(Boolean)
   .join('')
 
-const filepath = path.join(
-  ...[filenamePrefix, 'dist', filename].filter(Boolean),
-)
+const dirpath = path.join(...[filenamePrefix, 'dist'].filter(Boolean))
 
 const output = [
   {
     name,
-    file: filepath,
+    ...(codeSplitting
+      ? {dir: path.join(dirpath, format)}
+      : {file: path.join(dirpath, filename)}),
     format: esm ? 'es' : format,
-    exports: esm ? 'named' : 'default',
+    exports: esm ? 'named' : 'auto',
     globals,
   },
 ]
@@ -79,10 +115,24 @@ const output = [
 const useBuiltinConfig = !hasFile('.babelrc') && !hasPkgProp('babel')
 const babelPresets = useBuiltinConfig ? [here('../config/babelrc.js')] : []
 
+const replacements = Object.entries(
+  umd ? process.env : omit(process.env, ['NODE_ENV']),
+).reduce((acc, [key, value]) => {
+  let val
+  if (value === 'true' || value === 'false' || Number.isInteger(+value)) {
+    val = value
+  } else {
+    val = JSON.stringify(value)
+  }
+  acc[`process.env.${key}`] = val
+  return acc
+}, {})
+
 module.exports = {
-  input,
+  input: codeSplitting ? input : input[0],
   output,
-  external,
+  experimentalCodeSplitting: codeSplitting,
+  external: externalPredicate,
   plugins: [
     isNode ? nodeBuiltIns() : null,
     isNode ? nodeGlobals() : null,
@@ -94,6 +144,27 @@ module.exports = {
       presets: babelPresets,
       babelrc: true,
     }),
-    minify ? uglify() : null,
+    replace(replacements),
+    sizeSnapshot(),
+    minify ? terser() : null,
+    codeSplitting &&
+      ((writes = 0) => ({
+        onwrite() {
+          if (++writes !== input.length) {
+            return
+          }
+
+          input
+            .filter(single => single.indexOf('index.js') === -1)
+            .forEach(single => {
+              const chunk = path.basename(single)
+
+              writeExtraEntry(chunk.replace(/\..+$/, ''), {
+                cjs: `${dirpath}/cjs/${chunk}`,
+                esm: `${dirpath}/esm/${chunk}`,
+              })
+            })
+        },
+      }))(),
   ].filter(Boolean),
 }
