@@ -9,7 +9,7 @@ jest.mock('is-ci', () => mockIsCI)
 expect.addSnapshotSerializer(unquoteSerializer)
 
 cases(
-  'format',
+  'test',
   ({
     args = [],
     utils = require('../../utils'),
@@ -20,6 +20,7 @@ cases(
     precommit = 'false',
   }) => {
     // beforeEach
+    // eslint-disable-next-line jest/no-jest-import
     const {run: jestRunMock} = require('jest')
     const originalArgv = process.argv
     const prevCI = mockIsCI
