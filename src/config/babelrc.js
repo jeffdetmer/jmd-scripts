@@ -27,26 +27,23 @@ const envTargets = isTest
     : {node: '8.0'}
 const envOptions = {modules: false, loose: true, targets: envTargets}
 
-module.exports = {
+module.exports = () => ({
   presets: [
-    [require.resolve('babel-preset-env'), envOptions],
-    ifAnyDep(['react', 'preact'], require.resolve('babel-preset-react')),
+    [require.resolve('@babel/preset-env'), envOptions],
+    ifAnyDep(
+      ['react', 'preact'],
+      [
+        require.resolve('@babel/preset-react'),
+        {pragma: isPreact ? 'React.h' : undefined},
+      ],
+    ),
   ].filter(Boolean),
   plugins: [
     require.resolve('babel-plugin-macros'),
-    isRollup ? require.resolve('babel-plugin-external-helpers') : null,
-    // we're actually not using JSX at all, but I'm leaving this
-    // in here just in case we ever do (this would be easy to miss).
     alias
       ? [
           require.resolve('babel-plugin-module-resolver'),
           {root: ['./src'], alias},
-        ]
-      : null,
-    isPreact
-      ? [
-          require.resolve('babel-plugin-transform-react-jsx'),
-          {pragma: 'React.h'},
         ]
       : null,
     [
@@ -56,13 +53,11 @@ module.exports = {
     isUMD
       ? require.resolve('babel-plugin-transform-inline-environment-variables')
       : null,
-    // TODO: use loose mode when upgrading to babel@7
-    require.resolve('babel-plugin-transform-class-properties'),
-    require.resolve('babel-plugin-transform-object-rest-spread'),
+    [require.resolve('@babel/plugin-proposal-class-properties'), {loose: true}],
+    require.resolve('@babel/plugin-proposal-object-rest-spread'),
     require.resolve('babel-plugin-minify-dead-code-elimination'),
     treeshake
       ? null
-      : require.resolve('babel-plugin-transform-es2015-modules-commonjs'),
-    require.resolve('babel-polyfill'),
+      : require.resolve('@babel/plugin-transform-modules-commonjs'),
   ].filter(Boolean),
-}
+})
