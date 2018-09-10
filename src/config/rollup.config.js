@@ -30,6 +30,10 @@ const format = process.env.BUILD_FORMAT
 const isPreact = parseEnv('BUILD_PREACT', false)
 const isNode = parseEnv('BUILD_NODE', false)
 const name = process.env.BUILD_NAME || capitalize(camelcase(pkg.name))
+const useSizeSnapshot = parseEnv('BUILD_SIZE_SNAPSHOT', false)
+
+const esm = format === 'esm'
+const umd = format === 'umd'
 
 const defaultGlobals = Object.keys(pkg.peerDependencies || {}).reduce(
   (deps, dep) => {
@@ -39,7 +43,9 @@ const defaultGlobals = Object.keys(pkg.peerDependencies || {}).reduce(
   {},
 )
 
-const defaultExternal = Object.keys(pkg.peerDependencies || {})
+const deps = Object.keys(pkg.dependencies || {})
+const peerDeps = Object.keys(pkg.peerDependencies || {})
+const defaultExternal = umd ? peerDeps : deps.concat(peerDeps)
 
 const input = glob.sync(
   fromRoot(
@@ -84,9 +90,6 @@ if (isPreact) {
 const externalPattern = new RegExp(`^(${external.join('|')})($|/)`)
 const externalPredicate =
   external.length === 0 ? () => false : id => externalPattern.test(id)
-
-const esm = format === 'esm'
-const umd = format === 'umd'
 
 const filename = [
   pkg.name,
@@ -145,7 +148,7 @@ module.exports = {
       babelrc: true,
     }),
     replace(replacements),
-    sizeSnapshot(),
+    useSizeSnapshot ? sizeSnapshot({printInfo: false}) : null,
     minify ? terser() : null,
     codeSplitting &&
       ((writes = 0) => ({
