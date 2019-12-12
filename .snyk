@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.10.1
+version: v1.14.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   'npm:bl:20160119':
@@ -15,3 +15,6 @@ patch:
   'npm:semver:20150403':
     - rollup-plugin-node-builtins > browserify-fs > levelup > semver:
         patched: '2017-12-31T06:30:15.740Z'
+  SNYK-JS-TREEKILL-536781:
+    - concurrently > tree-kill:
+        patched: '2019-12-12T03:36:34.096Z'
