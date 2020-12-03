@@ -1,5 +1,5 @@
 const path = require('path')
-const {ifAnyDep, hasFile, hasPkgProp, fromRoot} = require('../utils')
+const { ifAnyDep, hasFile, hasPkgProp, fromRoot } = require('../utils')
 
 const here = p => path.join(__dirname, p)
 
@@ -7,14 +7,20 @@ const useBuiltInBabelConfig = !hasFile('.babelrc') && !hasPkgProp('babel')
 
 const ignores = [
   '/node_modules/',
+  '/__fixtures__/',
   '/fixtures/',
   '/__tests__/helpers/',
+  '/__tests__/utils/',
   '__mocks__',
 ]
 
 const jestConfig = {
   roots: [fromRoot('src')],
-  testEnvironment: ifAnyDep(['webpack', 'rollup', 'react'], 'jsdom', 'node'),
+  testEnvironment: ifAnyDep(
+    ['webpack', 'rollup', 'react', 'preact'],
+    'jsdom',
+    'node',
+  ),
   testURL: 'http://localhost',
   moduleFileExtensions: ['js', 'jsx', 'json', 'ts', 'tsx'],
   collectCoverageFrom: ['src/**/*.+(js|jsx|ts|tsx)'],
@@ -30,10 +36,18 @@ const jestConfig = {
       statements: 100,
     },
   },
+  watchPlugins: [
+    require.resolve('jest-watch-typeahead/filename'),
+    require.resolve('jest-watch-typeahead/testname'),
+  ],
+}
+
+if (hasFile('tests/setup-env.js')) {
+  jestConfig.setupFilesAfterEnv = [fromRoot('tests/setup-env.js')]
 }
 
 if (useBuiltInBabelConfig) {
-  jestConfig.transform = {'^.+\\.js$': here('./babel-transform')}
+  jestConfig.transform = { '^.+\\.(js|jsx|ts|tsx)$': here('./babel-transform') }
 }
 
 module.exports = jestConfig

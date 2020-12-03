@@ -3,14 +3,14 @@
   "version": "0.0.0-semantically-released",
   "description": "CLI for common scripts for my projects",
   "engines": {
-    "node": ">= 8",
-    "npm": ">= 5"
+    "node": ">=10.18",
+    "npm": ">=6",
+    "yarn": ">=1"
   },
   "bin": {
     "jmd-scripts": "dist/index.js"
   },
   "scripts": {
-    "add-contributor": "node src contributors add",
     "test": "node src test",
     "test:update": "node src test --updateSnapshot",
     "build": "node src build",
@@ -21,10 +21,11 @@
   "files": [
     "dist",
     "babel.js",
-    "eslint.js",
     "config.js",
-    "prettier.js",
-    "jest.js"
+    "eslint.js",
+    "husky.js",
+    "jest.js",
+    "prettier.js"
   ],
   "keywords": [],
   "author": "Jeff Detmer <jeff.detmer@gmail.com> (http://jeffdetmer.com/)",
@@ -98,7 +99,8 @@
       "import/no-dynamic-require": "off",
       "import/no-unassigned-import": "off",
       "no-console": "off",
-      "no-nested-ternary": "off"
+      "no-nested-ternary": "off",
+      "no-useless-catch": "off"
     }
   },
   "eslintIgnore": [
@@ -111,7 +113,7 @@
       "pre-commit": "node src precommit"
     }
   },
-  "lint-staged": {},
+
   "repository": {
     "type": "git",
     "url": "https://github.com/shellthor/jmd-scripts.git"
@@ -119,5 +121,9 @@
   "bugs": {
     "url": "https://github.com/shellthor/jmd-scripts/issues"
   },
-  "homepage": "https://github.com/shellthor/jmd-scripts#readme"
+  "homepage": "https://github.com/shellthor/jmd-scripts#readme",
+  "devDependencies": {
+    "jest-in-case": "^1.0.2",
+    "slash": "^3.0.0"
+  }
 }

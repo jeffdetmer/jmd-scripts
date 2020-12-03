@@ -1,11 +1,13 @@
 import cases from 'jest-in-case'
-import {unquoteSerializer, winPathSerializer} from './helpers/serializers'
-
-jest.mock('jest', () => ({run: jest.fn()}))
-jest.mock('../../config/jest.config', () => ({builtInConfig: true}))
+import {
+  unquoteSerializer,
+  winPathSerializer,
+  relativePathSerializer,
+} from './helpers/serializers'
 
 expect.addSnapshotSerializer(unquoteSerializer)
 expect.addSnapshotSerializer(winPathSerializer)
+expect.addSnapshotSerializer(relativePathSerializer)
 
 cases(
   'lint',
@@ -17,19 +19,18 @@ cases(
     setup = () => () => {},
   }) => {
     // beforeEach
-    const {sync: crossSpawnSyncMock} = require('cross-spawn')
+    const { sync: crossSpawnSyncMock } = require('cross-spawn')
     const originalArgv = process.argv
     const originalExit = process.exit
     Object.assign(utils, {
       hasPkgProp,
       hasFile,
-      resolveBin: (modName, {executable = modName} = {}) => executable,
+      resolveBin: (modName, { executable = modName } = {}) => executable,
     })
     process.exit = jest.fn()
     const teardown = setup()
 
     process.argv = ['node', '../lint', ...args]
-    crossSpawnSyncMock.mockClear()
 
     try {
       // tests

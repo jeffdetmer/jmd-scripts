@@ -23,8 +23,8 @@ const useBuiltinConfig =
 const config = useBuiltinConfig
   ? `--config ${hereRelative('../../config/rollup.config.js')}`
   : args.includes('--config')
-    ? ''
-    : '--config' // --config will pick up the rollup.config.js file
+  ? ''
+  : '--config' // --config will pick up the rollup.config.js file
 
 const environment = parsedArgs.environment
   ? `--environment ${parsedArgs.environment}`
@@ -77,7 +77,7 @@ if (result.status === 0 && buildPreact && !args.includes('--no-package-json')) {
 
 function getPReactScripts() {
   const reactCommands = prefixKeys('react.', getCommands())
-  const preactCommands = prefixKeys('preact.', getCommands({preact: true}))
+  const preactCommands = prefixKeys('preact.', getCommands({ preact: true }))
   return getConcurrentlyArgs(Object.assign(reactCommands, preactCommands))
 }
 
@@ -88,7 +88,7 @@ function prefixKeys(prefix, object) {
   }, {})
 }
 
-function getCommands({preact = false} = {}) {
+function getCommands({ preact = false } = {}) {
   return formats.reduce((cmds, format) => {
     const [formatName, minify = false] = format.split('.')
     const nodeEnv = minify ? 'production' : 'development'

@@ -1,22 +1,26 @@
 const path = require('path')
+const { babel: rollupBabel } = require('@rollup/plugin-babel')
+const commonjs = require('@rollup/plugin-commonjs')
+const json = require('@rollup/plugin-json')
+const {
+  DEFAULTS: nodeResolveDefaults,
+  nodeResolve,
+} = require('@rollup/plugin-node-resolve')
+const replace = require('@rollup/plugin-replace')
 const glob = require('glob')
 const camelcase = require('lodash.camelcase')
-const rollupBabel = require('rollup-plugin-babel')
-const commonjs = require('rollup-plugin-commonjs')
-const nodeResolve = require('rollup-plugin-node-resolve')
-const json = require('rollup-plugin-json')
-const replace = require('rollup-plugin-replace')
-const {terser} = require('rollup-plugin-terser')
+const { terser } = require('rollup-plugin-terser')
 const nodeBuiltIns = require('rollup-plugin-node-builtins')
 const nodeGlobals = require('rollup-plugin-node-globals')
-const {sizeSnapshot} = require('rollup-plugin-size-snapshot')
+const { sizeSnapshot } = require('rollup-plugin-size-snapshot')
 const omit = require('lodash.omit')
 const {
   pkg,
   hasFile,
   hasPkgProp,
+  hasDep,
+  hasTypescript,
   parseEnv,
-  ifFile,
   fromRoot,
   uniq,
   writeExtraEntry,
@@ -50,11 +54,7 @@ const defaultExternal = umd ? peerDeps : deps.concat(peerDeps)
 const input = glob.sync(
   fromRoot(
     process.env.BUILD_INPUT ||
-      ifFile(
-        `src/${format}-entry.js`,
-        `src/${format}-entry.js`,
-        'src/index.js',
-      ),
+      (hasTypescript ? 'src/index.{js,ts,tsx}' : 'src/index.js'),
   ),
 )
 const codeSplitting = input.length > 1
@@ -74,7 +74,9 @@ const filenamePrefix =
   process.env.BUILD_FILENAME_PREFIX || (isPreact ? 'preact/' : '')
 const globals = parseEnv(
   'BUILD_GLOBALS',
-  isPreact ? Object.assign(defaultGlobals, {preact: 'preact'}) : defaultGlobals,
+  isPreact
+    ? Object.assign(defaultGlobals, { preact: 'preact' })
+    : defaultGlobals,
 )
 const external = parseEnv(
   'BUILD_EXTERNAL',
@@ -88,8 +90,19 @@ if (isPreact) {
 }
 
 const externalPattern = new RegExp(`^(${external.join('|')})($|/)`)
-const externalPredicate =
-  external.length === 0 ? () => false : id => externalPattern.test(id)
+
+function externalPredicate(id) {
+  const isDep = external.length > 0 && externalPattern.test(id)
+  if (umd) {
+    // for UMD, we want to bundle all non-peer deps
+    return isDep
+  }
+  // for esm/cjs we want to make all node_modules external
+  // TODO: support bundledDependencies if someone needs it ever...
+  const isNodeModule = id.includes('node_modules')
+  const isRelative = id.startsWith('.')
+  return isDep || (!isRelative && !path.isAbsolute(id)) || isNodeModule
+}
 
 const filename = [
   pkg.name,
@@ -107,15 +120,19 @@ const output = [
   {
     name,
     ...(codeSplitting
-      ? {dir: path.join(dirpath, format)}
-      : {file: path.join(dirpath, filename)}),
+      ? { dir: path.join(dirpath, format) }
+      : { file: path.join(dirpath, filename) }),
     format: esm ? 'es' : format,
     exports: esm ? 'named' : 'auto',
     globals,
   },
 ]
 
-const useBuiltinConfig = !hasFile('.babelrc') && !hasPkgProp('babel')
+const useBuiltinConfig =
+  !hasFile('.babelrc') &&
+  !hasFile('.babelrc.js') &&
+  !hasFile('babel.config.js') &&
+  !hasPkgProp('babel')
 const babelPresets = useBuiltinConfig ? [here('../config/babelrc.js')] : []
 
 const replacements = Object.entries(
@@ -131,24 +148,32 @@ const replacements = Object.entries(
   return acc
 }, {})
 
+const extensions = hasTypescript
+  ? [...nodeResolveDefaults.extensions, '.ts', '.tsx']
+  : nodeResolveDefaults.extensions
+
 module.exports = {
   input: codeSplitting ? input : input[0],
   output,
-  experimentalCodeSplitting: codeSplitting,
   external: externalPredicate,
   plugins: [
     isNode ? nodeBuiltIns() : null,
     isNode ? nodeGlobals() : null,
-    nodeResolve({preferBuiltins: isNode, jsnext: true, main: true}),
-    commonjs({include: 'node_modules/**'}),
+    nodeResolve({
+      preferBuiltins: isNode,
+      mainFields: ['module', 'main', 'jsnext', 'browser'],
+      extensions,
+    }),
+    commonjs({ include: 'node_modules/**' }),
     json(),
     rollupBabel({
-      exclude: 'node_modules/**',
       presets: babelPresets,
-      babelrc: true,
+      babelrc: !useBuiltinConfig,
+      babelHelpers: hasDep('@babel/runtime') ? 'runtime' : 'bundled',
+      extensions,
     }),
     replace(replacements),
-    useSizeSnapshot ? sizeSnapshot({printInfo: false}) : null,
+    useSizeSnapshot ? sizeSnapshot({ printInfo: false }) : null,
     minify ? terser() : null,
     codeSplitting &&
       ((writes = 0) => ({

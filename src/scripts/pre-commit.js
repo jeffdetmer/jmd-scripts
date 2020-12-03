@@ -1,6 +1,6 @@
 const path = require('path')
 const spawn = require('cross-spawn')
-const {isOptedIn, hasPkgProp, hasFile, resolveBin} = require('../utils')
+const { hasPkgProp, hasFile, resolveBin, hasTypescript } = require('../utils')
 
 const here = p => path.join(__dirname, p)
 const hereRelative = p => here(p).replace(process.cwd(), '.')
@@ -20,15 +20,27 @@ const config = useBuiltInConfig
 const lintStagedResult = spawn.sync(
   resolveBin('lint-staged'),
   [...config, ...args],
-  {stdio: 'inherit'},
+  { stdio: 'inherit' },
 )
 
-if (lintStagedResult.status !== 0 || !isOptedIn('pre-commit')) {
+if (lintStagedResult.status !== 0) {
   process.exit(lintStagedResult.status)
-} else {
-  const validateResult = spawn.sync('npm', ['run', 'validate'], {
-    stdio: 'inherit',
-  })
-
-  process.exit(validateResult.status)
 }
+
+if (hasTypescript) {
+  const tscResult = spawn.sync(
+    resolveBin('typescript', { executable: 'tsc' }),
+    ['--build', 'tsconfig.json'],
+    { stdio: 'inherit' },
+  )
+
+  if (tscResult.status !== 0) {
+    process.exit(tscResult.status)
+  }
+}
+
+const validateResult = spawn.sync('npm', ['run', 'validate'], {
+  stdio: 'inherit',
+})
+
+process.exit(validateResult.status)

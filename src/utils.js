@@ -6,31 +6,40 @@ const arrify = require('arrify')
 const has = require('lodash.has')
 const readPkgUp = require('read-pkg-up')
 const which = require('which')
+const { cosmiconfigSync } = require('cosmiconfig')
 
-const {pkg, path: pkgPath} = readPkgUp.sync({
+const { packageJson: pkg, path: pkgPath } = readPkgUp.sync({
   cwd: fs.realpathSync(process.cwd()),
 })
 const appDirectory = path.dirname(pkgPath)
 
-function resolveKcdScripts() {
-  if (pkg.name === 'jmd-scripts') {
+function resolveJmdScripts() {
+  if (
+    pkg.name === 'jmd-scripts' ||
+    // this happens on install of husky within jmd-scripts locally
+    appDirectory.includes(path.join(__dirname, '..'))
+  ) {
     return require.resolve('./').replace(process.cwd(), '.')
   }
   return resolveBin('jmd-scripts')
 }
 
 // eslint-disable-next-line complexity
-function resolveBin(modName, {executable = modName, cwd = process.cwd()} = {}) {
+function resolveBin(
+  modName,
+  { executable = modName, cwd = process.cwd() } = {},
+) {
   let pathFromWhich
   try {
     pathFromWhich = fs.realpathSync(which.sync(executable))
+    if (pathFromWhich && pathFromWhich.includes('.CMD')) return pathFromWhich
   } catch (_error) {
     // ignore _error
   }
   try {
     const modPkgPath = require.resolve(`${modName}/package.json`)
     const modPkgDir = path.dirname(modPkgPath)
-    const {bin} = require(modPkgPath)
+    const { bin } = require(modPkgPath)
     const binPath = typeof bin === 'string' ? bin : bin[executable]
     const fullPathToBin = path.join(modPkgDir, binPath)
     if (fullPathToBin === pathFromWhich) {
@@ -70,6 +79,9 @@ const ifDevDep = ifPkgSubProp('devDependencies')
 const ifAnyDep = (deps, t, f) => (hasAnyDep(arrify(deps)) ? t : f)
 const ifScript = ifPkgSubProp('scripts')
 
+const hasTypescript = hasAnyDep('typescript') && hasFile('tsconfig.json')
+const ifTypescript = (t, f) => (hasTypescript ? t : f)
+
 function parseEnv(name, def) {
   if (envIsSet(name)) {
     try {
@@ -89,7 +101,7 @@ function envIsSet(name) {
   )
 }
 
-function getConcurrentlyArgs(scripts, {killOthers = true} = {}) {
+function getConcurrentlyArgs(scripts, { killOthers = true } = {}) {
   const colors = [
     'bgBlue',
     'bgGreen',
@@ -124,27 +136,11 @@ function getConcurrentlyArgs(scripts, {killOthers = true} = {}) {
   ].filter(Boolean)
 }
 
-function isOptedOut(key, t = true, f = false) {
-  if (!fs.existsSync(fromRoot('.opt-out'))) {
-    return f
-  }
-  const contents = fs.readFileSync(fromRoot('.opt-out'), 'utf-8')
-  return contents.includes(key) ? t : f
-}
-
-function isOptedIn(key, t = true, f = false) {
-  if (!fs.existsSync(fromRoot('.opt-in'))) {
-    return f
-  }
-  const contents = fs.readFileSync(fromRoot('.opt-in'), 'utf-8')
-  return contents.includes(key) ? t : f
-}
-
 function uniq(arr) {
   return Array.from(new Set(arr))
 }
 
-function writeExtraEntry(name, {cjs, esm}, clean = true) {
+function writeExtraEntry(name, { cjs, esm }, clean = true) {
   if (clean) {
     rimraf.sync(fromRoot(name))
   }
@@ -167,26 +163,34 @@ function writeExtraEntry(name, {cjs, esm}, clean = true) {
   )
 }
 
+function hasLocalConfig(moduleName, searchOptions = {}) {
+  const explorerSync = cosmiconfigSync(moduleName, searchOptions)
+  const result = explorerSync.search(pkgPath)
+
+  return result !== null
+}
+
 module.exports = {
   appDirectory,
-  envIsSet,
   fromRoot,
   getConcurrentlyArgs,
   hasFile,
+  hasLocalConfig,
   hasPkgProp,
   hasScript,
+  hasDep,
   ifAnyDep,
   ifDep,
   ifDevDep,
   ifFile,
   ifPeerDep,
   ifScript,
-  isOptedIn,
-  isOptedOut,
+  hasTypescript,
+  ifTypescript,
   parseEnv,
   pkg,
   resolveBin,
-  resolveKcdScripts,
+  resolveJmdScripts,
   uniq,
   writeExtraEntry,
 }

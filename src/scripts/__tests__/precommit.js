@@ -1,11 +1,11 @@
 import cases from 'jest-in-case'
-import {unquoteSerializer, winPathSerializer} from './helpers/serializers'
+import { unquoteSerializer, winPathSerializer } from './helpers/serializers'
 
 expect.addSnapshotSerializer(unquoteSerializer)
 expect.addSnapshotSerializer(winPathSerializer)
 
 cases(
-  'precommit',
+  'pre-commit',
   ({
     args = [],
     utils = require('../../utils'),
@@ -13,23 +13,21 @@ cases(
     hasFile = () => false,
   }) => {
     // beforeEach
-    const {sync: crossSpawnSyncMock} = require('cross-spawn')
+    const { sync: crossSpawnSyncMock } = require('cross-spawn')
     const originalArgv = process.argv
     const originalExit = process.exit
     Object.assign(utils, {
       hasPkgProp,
       hasFile,
-      resolveBin: (modName, {executable = modName} = {}) => executable,
+      resolveBin: (modName, { executable = modName } = {}) => executable,
     })
     process.exit = jest.fn()
 
-    process.argv = ['node', '../precommit', ...args]
-    utils.isOptedIn = optIn => optIn === 'pre-commit'
-    crossSpawnSyncMock.mockClear()
+    process.argv = ['node', '../pre-commit', ...args]
 
     try {
       // tests
-      require('../precommit')
+      require('../pre-commit')
       expect(crossSpawnSyncMock).toHaveBeenCalledTimes(2)
       const [firstCall, secondCall] = crossSpawnSyncMock.mock.calls
       const [scriptOne, calledArgsOne] = firstCall

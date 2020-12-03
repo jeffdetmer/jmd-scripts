@@ -1,5 +1,5 @@
 import cases from 'jest-in-case'
-import {unquoteSerializer} from './helpers/serializers'
+import { unquoteSerializer } from './helpers/serializers'
 
 expect.addSnapshotSerializer(unquoteSerializer)
 
@@ -14,12 +14,11 @@ cases(
       TRAVIS_BRANCH: 'master',
       TRAVIS_PULL_REQUEST: 'false',
     },
-    runsNothing = false,
   }) => {
     // beforeEach
-    const {sync: crossSpawnSyncMock} = require('cross-spawn')
+    const { sync: crossSpawnSyncMock } = require('cross-spawn')
     const utils = require('../../utils')
-    utils.resolveBin = (modName, {executable = modName} = {}) => executable
+    utils.resolveBin = (modName, { executable = modName } = {}) => executable
     const originalEnvs = Object.keys(env).map(envKey => {
       const orig = process.env[envKey]
       process.env[envKey] = env[envKey]
@@ -31,23 +30,18 @@ cases(
     console.log = jest.fn()
 
     // tests
-    crossSpawnSyncMock.mockClear()
     if (version) {
       utils.pkg.version = version
     }
     utils.hasFile = () => hasCoverageDir
     process.env.SKIP_CODECOV = isOptedOutOfCoverage
     require('../travis-after-success')
-    if (runsNothing) {
-      expect(console.log.mock.calls).toMatchSnapshot()
-    } else {
-      expect(crossSpawnSyncMock).toHaveBeenCalledTimes(2)
-      const [firstCall, secondCall] = crossSpawnSyncMock.mock.calls
-      const [scriptOne, calledArgsOne] = firstCall
-      expect([scriptOne, ...calledArgsOne].join(' ')).toMatchSnapshot()
-      const [scriptTwo, calledArgsTwo] = secondCall
-      expect([scriptTwo, ...calledArgsTwo].join(' ')).toMatchSnapshot()
-    }
+
+    expect(console.log.mock.calls).toMatchSnapshot()
+    const commands = crossSpawnSyncMock.mock.calls.map(
+      call => `${call[0]} ${call[1].join(' ')}`,
+    )
+    expect(commands).toMatchSnapshot()
 
     // afterEach
     process.exit = originalExit
@@ -76,7 +70,6 @@ cases(
       },
     },
     'does not run either script when no coverage dir and not the right version': {
-      runsNothing: true,
       hasCoverageDir: false,
       version: '1.2.3',
     },

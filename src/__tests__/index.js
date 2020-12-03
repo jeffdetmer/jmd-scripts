@@ -1,7 +1,7 @@
 import path from 'path'
 import slash from 'slash'
 import cases from 'jest-in-case'
-import {unquoteSerializer} from '../scripts/__tests__/helpers/serializers'
+import { unquoteSerializer } from '../scripts/__tests__/helpers/serializers'
 
 const projectRoot = path.join(__dirname, '../../')
 
@@ -13,9 +13,9 @@ expect.addSnapshotSerializer({
 
 cases(
   'format',
-  ({snapshotLog = false, throws = false, signal = false, args = []}) => {
+  ({ snapshotLog = false, throws = false, signal = false, args = [] }) => {
     // beforeEach
-    const {sync: crossSpawnSyncMock} = require('cross-spawn')
+    const { sync: crossSpawnSyncMock } = require('cross-spawn')
     const originalExit = process.exit
     const originalArgv = process.argv
     const originalLog = console.log
@@ -26,7 +26,7 @@ cases(
       process.argv = ['node', '../', ...args]
       crossSpawnSyncMock.mockClear()
       if (signal) {
-        crossSpawnSyncMock.mockReturnValueOnce({result: 1, signal})
+        crossSpawnSyncMock.mockReturnValueOnce({ result: 1, signal })
       }
       require('../')
       if (snapshotLog) {
@@ -58,6 +58,9 @@ cases(
   {
     'calls node with the script path and args': {
       args: ['test', '--no-watch'],
+    },
+    'calls node with the script path and args including inspect-brk argument': {
+      args: ['--inspect-brk=3080', 'test', '--no-watch'],
     },
     'throws unknown script': {
       args: ['unknown-script'],
