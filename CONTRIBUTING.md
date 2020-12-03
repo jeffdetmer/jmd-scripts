@@ -29,12 +29,6 @@ series [How to Contribute to an Open Source Project on GitHub][egghead]
 
 ## Committing and Pushing changes
 
-This project uses [`semantic-release`][semantic-release] to do automatic
-releases and generate a changelog based on the commit history. So we follow [a
-convention][convention] for commit messages. You don't have to follow this
-convention if you don't want to. Just know that when we merge your commit, we'll
-probably use "Squash and Merge" so we can change the commit message :)
-
 Please make sure to run the tests before you commit your changes. You can run
 `npm run test:update` which will update any snapshots that need updating. Make
 sure to include those changes (if they exist) in your commit.

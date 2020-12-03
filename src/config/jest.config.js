@@ -23,6 +23,12 @@ const jestConfig = {
   ),
   testURL: 'http://localhost',
   moduleFileExtensions: ['js', 'jsx', 'json', 'ts', 'tsx'],
+  moduleDirectories: [
+    'node_modules',
+    fromRoot('src'),
+    'shared',
+    fromRoot('tests'),
+  ],
   collectCoverageFrom: ['src/**/*.+(js|jsx|ts|tsx)'],
   testMatch: ['**/__tests__/**/*.+(js|jsx|ts|tsx)'],
   testPathIgnorePatterns: [...ignores],
@@ -40,10 +46,18 @@ const jestConfig = {
     require.resolve('jest-watch-typeahead/filename'),
     require.resolve('jest-watch-typeahead/testname'),
   ],
+  snapshotSerializers: [require.resolve('jest-serializer-path')],
 }
 
-if (hasFile('tests/setup-env.js')) {
-  jestConfig.setupFilesAfterEnv = [fromRoot('tests/setup-env.js')]
+const setupFiles = [
+  'tests/setup-env.js',
+  'tests/setup-env.ts',
+  'tests/setup-env.tsx',
+]
+for (const setupFile of setupFiles) {
+  if (hasFile(setupFile)) {
+    jestConfig.setupFilesAfterEnv = [fromRoot(setupFile)]
+  }
 }
 
 if (useBuiltInBabelConfig) {

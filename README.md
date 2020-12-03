@@ -9,21 +9,13 @@
 <!-- prettier-ignore-start -->
 [![Build Status][build-badge]][build]
 [![Code Coverage][coverage-badge]][coverage]
-[![Greenkeeper badge](https://badges.greenkeeper.io/shellthor/jmd-scripts.svg)](https://greenkeeper.io/)
 [![version][version-badge]][package]
-[![downloads][downloads-badge]][npmcharts]
+[![downloads][downloads-badge]][npmtrends]
 [![MIT License][license-badge]][license]
-
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
+[![All Contributors][all-contributors-badge]](#contributors-)
 [![PRs Welcome][prs-badge]][prs]
 [![Code of Conduct][coc-badge]][coc]
 <!-- prettier-ignore-end -->
-
-[![Watch on GitHub][github-watch-badge]][github-watch]
-[![Star on GitHub][github-star-badge]][github-star]
-[![Tweet][twitter-badge]][twitter]
 
 ## The problem
 
@@ -39,14 +31,13 @@ for linting, testing, building, and more.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Installation](#installation)
 - [Usage](#usage)
   - [Overriding Config](#overriding-config)
-  - [Flow support](#flow-support)
   - [TypeScript Support](#typescript-support)
 - [Inspiration](#inspiration)
 - [Other Solutions](#other-solutions)
+- [Issues](#issues)
   - [🐛 Bugs](#-bugs)
   - [💡 Feature Requests](#-feature-requests)
 - [Contributors ✨](#contributors-)
@@ -120,27 +111,23 @@ module.exports = Object.assign(jestConfig, {
 > configuring things to make it less magical and more straightforward. Extending
 > can take place on your terms. I think this is actually a great way to do this.
 
-### Flow support
-
-If the `flow-bin` is a dependency on the project the `@babel/preset-flow` will
-automatically get loaded when you use the default babel config that comes with
-`jmd-scripts`. If you customised your `.babelrc`-file you might need to manually
-add `@babel/preset-flow` to the `presets`-section.
-
 ### TypeScript Support
 
 If the `tsconfig.json`-file is present in the project root directory and
 `typescript` is a dependency the `@babel/preset-typescript` will automatically
 get loaded when you use the default babel config that comes with `jmd-scripts`.
-If you customised your `.babelrc`-file you might need to manually add
+If you customized your `.babelrc`-file you might need to manually add
 `@babel/preset-typescript` to the `presets`-section.
 
 `jmd-scripts` will automatically load any `.ts` and `.tsx` files, including the
 default entry point, so you don't have to worry about any rollup configuration.
 
-`tsc --build tsconfig.json` will run during before committing to verify that
-files will compile. So make sure to add the `noEmit` flag to the
-`tsconfig.json`'s `compilerOptions`.
+If you have a `typecheck` script (normally set to `jmd-scripts typecheck`) that
+will be run as part of the `validate` script (which is run as part of the
+`pre-commit` script as well).
+
+TypeScript definition files will also automatically be generated during the
+`build` script.
 
 ## Inspiration
 
@@ -148,8 +135,10 @@ This is inspired by `react-scripts` and heavily borrows code from `kcd-scripts`.
 
 ## Other Solutions
 
-If you are aware of any others, please [make a pull request][prs] and add it
-here!
+I'm not aware of any, if you are please [make a pull request][prs] and add it
+here! Again, this is a very specific-to-me solution.
+
+## Issues
 
 _Looking to contribute? Look for the [Good First Issue][good-first-issue]
 label._
@@ -176,10 +165,8 @@ Thanks goes to these people ([emoji key][emojis]):
 | [<img src="https://avatars1.githubusercontent.com/u/649578?v=4" width="100px;"/><br /><sub>Jeff Detmer</sub>](http://www.jeffdetmer.com)<br />[💻](https://github.com/shellthor/jmd-scripts/commits?author=shellthor 'Code') [📖](https://github.com/shellthor/jmd-scripts/commits?author=shellthor 'Documentation') [🚇](#infra-shellthor 'Infrastructure (Hosting, Build-Tools, etc)') |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 
-
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
-
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors][all-contributors] specification.
@@ -203,30 +190,22 @@ MIT
 [package]: https://www.npmjs.com/package/jmd-scripts
 [downloads-badge]:
   https://img.shields.io/npm/dm/jmd-scripts.svg?style=flat-square
-[npmcharts]: http://npmcharts.com/compare/jmd-scripts
+[npmtrends]: http://npmtrends.com/jmd-scripts
 [license-badge]: https://img.shields.io/npm/l/jmd-scripts.svg?style=flat-square
 [license]: https://github.com/shellthor/jmd-scripts/blob/master/LICENSE
 [prs-badge]:
   https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [prs]: http://makeapullrequest.com
-[donate-badge]:
-  https://img.shields.io/badge/$-support-green.svg?style=flat-square
 [coc-badge]:
   https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
 [coc]:
   https://github.com/shellthor/jmd-scripts/blob/master/other/CODE_OF_CONDUCT.md
-[github-watch-badge]:
-  https://img.shields.io/github/watchers/shellthor/jmd-scripts.svg?style=social
-[github-watch]: https://github.com/shellthor/jmd-scripts/watchers
-[github-star-badge]:
-  https://img.shields.io/github/stars/shellthor/jmd-scripts.svg?style=social
-[github-star]: https://github.com/shellthor/jmd-scripts/stargazers
-[twitter]:
-  https://twitter.com/intent/tweet?text=Check%20out%20jmd-scripts!%20https://github.com/shellthor/jmd-scripts%20%F0%9F%91%8D
-[twitter-badge]:
-  https://img.shields.io/twitter/url/https/github.com/shellthor/jmd-scripts.svg?style=social
 [emojis]: https://github.com/kentcdodds/all-contributors#emoji-key
 [all-contributors]: https://github.com/kentcdodds/all-contributors
 [kcd-scripts]: https://github.com/kentcdodds/kcd-scripts
-
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fshellthor%2Fjmd-scripts.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fshellthor%2Fjmd-scripts?ref=badge_large)
+[all-contributors-badge]:
+  https://img.shields.io/github/all-contributors/shellthor/jmd-scripts?color=orange&style=flat-square
+[bugs]:
+  https://github.com/shellthor/jmd-scripts/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+sort%3Acreated-desc+label%3Abug
+[requests]:
+  https://github.com/shellthor/jmd-scripts/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc+label%3Aenhancement
