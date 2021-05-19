@@ -1,6 +1,6 @@
 const path = require('path')
 const spawn = require('cross-spawn')
-const { hasPkgProp, hasFile, resolveBin } = require('../utils')
+const {hasPkgProp, hasFile, resolveBin} = require('../utils')
 
 const here = p => path.join(__dirname, p)
 const hereRelative = p => here(p).replace(process.cwd(), '.')

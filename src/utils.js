@@ -1,15 +1,17 @@
 const fs = require('fs')
 const path = require('path')
+const cpy = require('cpy')
 const spawn = require('cross-spawn')
 const rimraf = require('rimraf')
 const mkdirp = require('mkdirp')
 const arrify = require('arrify')
 const has = require('lodash.has')
+const glob = require('glob')
 const readPkgUp = require('read-pkg-up')
 const which = require('which')
-const { cosmiconfigSync } = require('cosmiconfig')
+const {cosmiconfigSync} = require('cosmiconfig')
 
-const { packageJson: pkg, path: pkgPath } = readPkgUp.sync({
+const {packageJson: pkg, path: pkgPath} = readPkgUp.sync({
   cwd: fs.realpathSync(process.cwd()),
 })
 const appDirectory = path.dirname(pkgPath)
@@ -26,10 +28,7 @@ function resolveJmdScripts() {
 }
 
 // eslint-disable-next-line complexity
-function resolveBin(
-  modName,
-  { executable = modName, cwd = process.cwd() } = {},
-) {
+function resolveBin(modName, {executable = modName, cwd = process.cwd()} = {}) {
   let pathFromWhich
   try {
     pathFromWhich = fs.realpathSync(which.sync(executable))
@@ -40,7 +39,7 @@ function resolveBin(
   try {
     const modPkgPath = require.resolve(`${modName}/package.json`)
     const modPkgDir = path.dirname(modPkgPath)
-    const { bin } = require(modPkgPath)
+    const {bin} = require(modPkgPath)
     const binPath = typeof bin === 'string' ? bin : bin[executable]
     const fullPathToBin = path.join(modPkgDir, binPath)
     if (fullPathToBin === pathFromWhich) {
@@ -102,7 +101,7 @@ function envIsSet(name) {
   )
 }
 
-function getConcurrentlyArgs(scripts, { killOthers = true } = {}) {
+function getConcurrentlyArgs(scripts, {killOthers = true} = {}) {
   const colors = [
     'bgBlue',
     'bgGreen',
@@ -141,7 +140,7 @@ function uniq(arr) {
   return Array.from(new Set(arr))
 }
 
-function writeExtraEntry(name, { cjs, esm }, clean = true) {
+function writeExtraEntry(name, {cjs, esm}, clean = true) {
   if (clean) {
     rimraf.sync(fromRoot(name))
   }
@@ -171,18 +170,53 @@ function hasLocalConfig(moduleName, searchOptions = {}) {
   return result !== null
 }
 
-function generateTypeDefs() {
-  return spawn.sync(
-    resolveBin('typescript', { executable: 'tsc' }),
+async function generateTypeDefs(outputDir) {
+  const result = spawn.sync(
+    resolveBin('typescript', {executable: 'tsc'}),
     // prettier-ignore
     [
       '--declaration',
       '--emitDeclarationOnly',
       '--noEmit', 'false',
-      '--outDir', fromRoot('dist'),
+      '--outDir', outputDir,
     ],
-    { stdio: 'inherit' },
+    {stdio: 'inherit'},
   )
+  if (result.status !== 0) return result
+
+  await cpy('**/*.d.ts', '../dist', {cwd: fromRoot('src'), parents: true})
+  return result
+}
+
+function getRollupInputs() {
+  const buildInputGlob =
+    process.env.BUILD_INPUT ||
+    (hasTypescript ? 'src/index.{js,ts,tsx}' : 'src/index.js')
+  const input = glob.sync(fromRoot(buildInputGlob))
+  if (!input.length) {
+    throw new Error(`Unable to find files with this glob: ${buildInputGlob}`)
+  }
+  return input
+}
+
+function getRollupOutput(format = process.env.BUILD_FORMAT) {
+  const minify = parseEnv('BUILD_MINIFY', false)
+  const filenameSuffix = process.env.BUILD_FILENAME_SUFFIX || ''
+  const filename = [
+    pkg.name,
+    filenameSuffix,
+    `.${format}`,
+    minify ? '.min' : null,
+    '.js',
+  ]
+    .filter(Boolean)
+    .join('')
+
+  const isPreact = parseEnv('BUILD_PREACT', false)
+  const filenamePrefix =
+    process.env.BUILD_FILENAME_PREFIX || (isPreact ? 'preact/' : '')
+  const dirpath = path.join(...[filenamePrefix, 'dist'].filter(Boolean))
+  return {dirpath, filename}
 }
 
 module.exports = {
@@ -210,4 +244,6 @@ module.exports = {
   uniq,
   writeExtraEntry,
   generateTypeDefs,
+  getRollupInputs,
+  getRollupOutput,
 }

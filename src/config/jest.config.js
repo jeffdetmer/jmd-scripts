@@ -1,5 +1,5 @@
 const path = require('path')
-const { ifAnyDep, hasFile, hasPkgProp, fromRoot } = require('../utils')
+const {ifAnyDep, hasFile, hasPkgProp, fromRoot} = require('../utils')
 
 const here = p => path.join(__dirname, p)
 
@@ -46,7 +46,10 @@ const jestConfig = {
     require.resolve('jest-watch-typeahead/filename'),
     require.resolve('jest-watch-typeahead/testname'),
   ],
-  snapshotSerializers: [require.resolve('jest-serializer-path')],
+  snapshotSerializers: [
+    require.resolve('jest-serializer-path'),
+    require.resolve('jest-snapshot-serializer-raw/always'),
+  ],
 }
 
 const setupFiles = [
@@ -61,7 +64,7 @@ for (const setupFile of setupFiles) {
 }
 
 if (useBuiltInBabelConfig) {
-  jestConfig.transform = { '^.+\\.(js|jsx|ts|tsx)$': here('./babel-transform') }
+  jestConfig.transform = {'^.+\\.(js|jsx|ts|tsx)$': here('./babel-transform')}
 }
 
 module.exports = jestConfig

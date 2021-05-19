@@ -1,18 +1,18 @@
 import cases from 'jest-in-case'
-import { unquoteSerializer, winPathSerializer } from './helpers/serializers'
 
-expect.addSnapshotSerializer(unquoteSerializer)
+import {winPathSerializer} from './helpers/serializers'
+
 expect.addSnapshotSerializer(winPathSerializer)
 
 cases(
   'format',
-  ({ args }) => {
+  ({args}) => {
     // beforeEach
-    const { sync: crossSpawnSyncMock } = require('cross-spawn')
+    const {sync: crossSpawnSyncMock} = require('cross-spawn')
     const originalExit = process.exit
     const originalArgv = process.argv
     const utils = require('../../utils')
-    utils.resolveBin = (modName, { executable = modName } = {}) => executable
+    utils.resolveBin = (modName, {executable = modName} = {}) => executable
     process.exit = jest.fn()
 
     // tests

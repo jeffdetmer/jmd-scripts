@@ -1,16 +1,13 @@
 import cases from 'jest-in-case'
-import { unquoteSerializer } from './helpers/serializers'
-
-expect.addSnapshotSerializer(unquoteSerializer)
 
 cases(
   'validate',
-  ({ setup = () => () => {} }) => {
+  ({setup = () => () => {}}) => {
     // beforeEach
-    const { sync: crossSpawnSyncMock } = require('cross-spawn')
+    const {sync: crossSpawnSyncMock} = require('cross-spawn')
     const originalExit = process.exit
     process.exit = jest.fn()
-    process.env['SCRIPTS_PRE-COMMIT'] = 'false'
+    process.env.SCRIPTS_PRE_COMMIT = 'false'
     const teardown = setup()
 
     try {
@@ -50,10 +47,10 @@ cases(
     },
     [`doesn't use test or lint if it's in pre-commit`]: {
       setup: withDefaultSetup(() => {
-        const previousVal = process.env['SCRIPTS_PRE-COMMIT']
-        process.env['SCRIPTS_PRE-COMMIT'] = 'true'
+        const previousVal = process.env.SCRIPTS_PRE_COMMIT
+        process.env.SCRIPTS_PRE_COMMIT = 'true'
         return function teardown() {
-          process.env['SCRIPTS_PRE-COMMIT'] = previousVal
+          process.env.SCRIPTS_PRE_COMMIT = previousVal
         }
       }),
     },
@@ -78,7 +75,7 @@ function setupWithArgs(args = []) {
   return function setup() {
     const utils = require('../../utils')
     const originalResolveBin = utils.resolveBin
-    utils.resolveBin = (modName, { executable = modName } = {}) => executable
+    utils.resolveBin = (modName, {executable = modName} = {}) => executable
     const originalArgv = process.argv
     process.argv = ['node', '../format', ...args]
     return function teardown() {
@@ -91,7 +88,7 @@ function setupWithArgs(args = []) {
 function withDefaultSetup(setupFn) {
   return function defaultSetup() {
     const utils = require('../../utils')
-    utils.resolveBin = (modName, { executable = modName } = {}) => executable
+    utils.resolveBin = (modName, {executable = modName} = {}) => executable
     const argsTeardown = setupWithArgs()()
     const teardownScripts = setupWithScripts()()
     const teardownFn = setupFn()

@@ -1,6 +1,6 @@
 const spawn = require('cross-spawn')
 const yargsParser = require('yargs-parser')
-const { hasAnyDep, resolveBin, hasFile } = require('../utils')
+const {hasAnyDep, resolveBin, hasFile} = require('../utils')
 
 let args = process.argv.slice(2)
 const parsedArgs = yargsParser(args)
@@ -24,12 +24,8 @@ if (!parsedArgs.project && !parsedArgs.build && !parsedArgs.noBuild) {
   args = ['--build', ...args]
 }
 
-const result = spawn.sync(
-  resolveBin('typescript', { executable: 'tsc' }),
-  args,
-  {
-    stdio: 'inherit',
-  },
-)
+const result = spawn.sync(resolveBin('typescript', {executable: 'tsc'}), args, {
+  stdio: 'inherit',
+})
 
 process.exit(result.status)

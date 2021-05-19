@@ -1,7 +1,7 @@
 const path = require('path')
 const spawn = require('cross-spawn')
 const yargsParser = require('yargs-parser')
-const { hasPkgProp, resolveBin, hasFile, fromRoot } = require('../utils')
+const {hasPkgProp, resolveBin, hasFile, fromRoot} = require('../utils')
 
 let args = process.argv.slice(2)
 const here = p => path.join(__dirname, p)
@@ -55,7 +55,7 @@ if (filesGiven) {
 const result = spawn.sync(
   resolveBin('eslint'),
   [...config, ...ext, ...ignore, ...cache, ...args, ...filesToApply],
-  { stdio: 'inherit' },
+  {stdio: 'inherit'},
 )
 
 process.exit(result.status)

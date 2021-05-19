@@ -1,4 +1,4 @@
-const { resolveJmdScripts } = require('../utils')
+const {resolveJmdScripts} = require('../utils')
 
 const jmdScripts = resolveJmdScripts()
 

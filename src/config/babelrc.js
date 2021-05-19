@@ -10,15 +10,16 @@ const {
   pkg,
 } = require('../utils')
 
-const { BABEL_ENV, NODE_ENV, BUILD_FORMAT } = process.env
+const {BABEL_ENV, NODE_ENV, BUILD_FORMAT} = process.env
 const isTest = (BABEL_ENV || NODE_ENV) === 'test'
 const isPreact = parseEnv('BUILD_PREACT', false)
 const isRollup = parseEnv('BUILD_ROLLUP', false)
 const isUMD = BUILD_FORMAT === 'umd'
 const isCJS = BUILD_FORMAT === 'cjs'
 const isWebpack = parseEnv('BUILD_WEBPACK', false)
+const isMinify = parseEnv('BUILD_MINIFY', false)
 const treeshake = parseEnv('BUILD_TREESHAKE', isRollup || isWebpack)
-const alias = parseEnv('BUILD_ALIAS', isPreact ? { react: 'preact' } : null)
+const alias = parseEnv('BUILD_ALIAS', isPreact ? {react: 'preact'} : null)
 
 const hasBabelRuntimeDep = Boolean(
   pkg.dependencies && pkg.dependencies['@babel/runtime'],
@@ -37,17 +38,16 @@ if (!treeshake && !hasBabelRuntimeDep && !isTest) {
  * fallback to the default if don't found custom configuration
  * @see https://github.com/browserslist/browserslist/blob/master/node.js#L139
  */
-const browsersConfig = browserslist.loadConfig({ path: appDirectory }) || [
-  'ie 10',
-  'ios 7',
+const browsersConfig = browserslist.loadConfig({path: appDirectory}) || [
+  'defaults',
 ]
 
 const envTargets = isTest
-  ? { node: 'current' }
+  ? {node: 'current'}
   : isWebpack || isRollup
-  ? { browsers: browsersConfig }
-  : { node: getNodeVersion(pkg) }
-const envOptions = { modules: false, loose: true, targets: envTargets }
+  ? {browsers: browsersConfig}
+  : {node: getNodeVersion(pkg)}
+const envOptions = {modules: false, loose: true, targets: envTargets}
 
 module.exports = () => ({
   presets: [
@@ -56,7 +56,7 @@ module.exports = () => ({
       ['react', 'preact'],
       [
         require.resolve('@babel/preset-react'),
-        { pragma: isPreact ? ifDep('react', 'React.h', 'h') : undefined },
+        {pragma: isPreact ? ifDep('react', 'React.h', 'h') : undefined},
       ],
     ),
     ifTypescript([require.resolve('@babel/preset-typescript')]),
@@ -64,34 +64,36 @@ module.exports = () => ({
   plugins: [
     [
       require.resolve('@babel/plugin-transform-runtime'),
-      { useESModules: treeshake && !isCJS },
+      {useESModules: treeshake && !isCJS},
     ],
     require.resolve('babel-plugin-macros'),
     alias
       ? [
           require.resolve('babel-plugin-module-resolver'),
-          { root: ['./src'], alias },
+          {root: ['./src'], alias},
         ]
       : null,
-    [
-      require.resolve('babel-plugin-transform-react-remove-prop-types'),
-      isPreact ? { removeImport: true } : { mode: 'unsafe-wrap' },
-    ],
+    ifAnyDep(
+      ['react', 'preact'],
+      [
+        require.resolve('babel-plugin-transform-react-remove-prop-types'),
+        isPreact ? {removeImport: true} : {mode: 'unsafe-wrap'},
+      ],
+    ),
     isUMD
       ? require.resolve('babel-plugin-transform-inline-environment-variables')
       : null,
-    [
-      require.resolve('@babel/plugin-proposal-class-properties'),
-      { loose: true },
-    ],
-    require.resolve('babel-plugin-minify-dead-code-elimination'),
+    [require.resolve('@babel/plugin-proposal-class-properties'), {loose: true}],
+    isMinify
+      ? require.resolve('babel-plugin-minify-dead-code-elimination')
+      : null,
     treeshake
       ? null
       : require.resolve('@babel/plugin-transform-modules-commonjs'),
   ].filter(Boolean),
 })
 
-function getNodeVersion({ engines: { node: nodeVersion = '10.13' } = {} }) {
+function getNodeVersion({engines: {node: nodeVersion = '10.13'} = {}}) {
   const oldestVersion = semver
     .validRange(nodeVersion)
     .replace(/[>=<|]/g, ' ')

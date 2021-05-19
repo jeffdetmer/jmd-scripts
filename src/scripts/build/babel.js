@@ -1,5 +1,5 @@
 const path = require('path')
-const { DEFAULT_EXTENSIONS } = require('@babel/core')
+const {DEFAULT_EXTENSIONS} = require('@babel/core')
 const spawn = require('cross-spawn')
 const yargsParser = require('yargs-parser')
 const rimraf = require('rimraf')
@@ -42,6 +42,7 @@ const copyFiles = args.includes('--no-copy-files') ? [] : ['--copy-files']
 const useSpecifiedOutDir = args.includes('--out-dir')
 const builtInOutDir = 'dist'
 const outDir = useSpecifiedOutDir ? [] : ['--out-dir', builtInOutDir]
+const noTypeDefinitions = args.includes('--no-ts-defs')
 
 if (!useSpecifiedOutDir && !args.includes('--no-clean')) {
   rimraf.sync(fromRoot('dist'))
@@ -49,9 +50,13 @@ if (!useSpecifiedOutDir && !args.includes('--no-clean')) {
   args = args.filter(a => a !== '--no-clean')
 }
 
-function go() {
+if (noTypeDefinitions) {
+  args = args.filter(a => a !== '--no-ts-defs')
+}
+
+async function go() {
   let result = spawn.sync(
-    resolveBin('@babel/cli', { executable: 'babel' }),
+    resolveBin('@babel/cli', {executable: 'babel'}),
     [
       ...outDir,
       ...copyFiles,
@@ -60,25 +65,30 @@ function go() {
       ...config,
       'src',
     ].concat(args),
-    { stdio: 'inherit' },
+    {stdio: 'inherit'},
   )
   if (result.status !== 0) return result.status
 
-  if (hasTypescript && !args.includes('--no-ts-defs')) {
+  const pathToOutDir = fromRoot(parsedArgs.outDir || builtInOutDir)
+
+  if (hasTypescript && !noTypeDefinitions) {
     console.log('Generating TypeScript definitions')
-    result = generateTypeDefs()
-    console.log('TypeScript definitions generated')
+    result = await generateTypeDefs(pathToOutDir)
     if (result.status !== 0) return result.status
+    console.log('TypeScript definitions generated')
   }
 
   // because babel will copy even ignored files, we need to remove the ignored files
-  const pathToOutDir = fromRoot(parsedArgs.outDir || builtInOutDir)
   const ignoredPatterns = (parsedArgs.ignore || builtInIgnore)
     .split(',')
     .map(pattern => path.join(pathToOutDir, pattern))
+
+  // type def files are compiled to an empty file and they're useless
+  // so we'll get rid of those too.
+  const typeDefCompiledFiles = path.join(pathToOutDir, '**/*.d.js')
   const ignoredFiles = ignoredPatterns.reduce(
     (all, pattern) => [...all, ...glob.sync(pattern)],
-    [],
+    [typeDefCompiledFiles],
   )
   ignoredFiles.forEach(ignoredFile => {
     rimraf.sync(ignoredFile)
@@ -87,4 +97,4 @@ function go() {
   return result.status
 }
 
-process.exit(go())
+go().then(process.exit)

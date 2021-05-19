@@ -12,6 +12,8 @@ const {
   writeExtraEntry,
   hasTypescript,
   generateTypeDefs,
+  getRollupInputs,
+  getRollupOutput,
 } = require('../../utils')
 
 const crossEnv = resolveBin('cross-env')
@@ -83,14 +85,39 @@ function go() {
 
   if (hasTypescript && !args.includes('--no-ts-defs')) {
     console.log('Generating TypeScript definitions')
-    result = generateTypeDefs()
+    result = generateTypeDefs(fromRoot('dist'))
     if (result.status !== 0) return result.status
 
+    const rollupInputs = getRollupInputs()
+    const typeDefFiles = rollupInputs.map(input => {
+      return input
+        .replace(path.join(process.cwd(), 'src'), 'dist')
+        .replace(/\.(t|j)sx?$/, '.d.ts')
+    })
+
     for (const format of formats) {
-      const [formatFile] = glob.sync(fromRoot(`dist/*.${format}.js`))
-      const { name } = path.parse(formatFile)
-      // make a .d.ts file for every generated file that re-exports index.d.ts
-      fs.writeFileSync(fromRoot('dist', `${name}.d.ts`), 'export * from ".";\n')
+      const {dirpath, filename} = getRollupOutput(format)
+
+      const isCodesplitting = rollupInputs.length > 1
+
+      const outputs = isCodesplitting
+        ? glob.sync(fromRoot(path.join(dirpath, format, '*.js')))
+        : [fromRoot(path.join(dirpath, filename))]
+
+      for (const output of outputs) {
+        const {name, dir} = path.parse(output)
+        const typeDef = isCodesplitting
+          ? typeDefFiles.find(f => path.basename(f) === `${name}.d.ts`)
+          : 'dist/index.d.ts'
+        const relativePath = path
+          .join(path.relative(dir, process.cwd()), typeDef)
+          .replace(/\.d\.ts$/, '')
+        // make a .d.ts file for every generated file that re-exports index.d.ts
+        fs.writeFileSync(
+          path.join(dir, `${name}.d.ts`),
+          `export * from "${relativePath}";\n`,
+        )
+      }
     }
 
     // because typescript generates type defs for ignored files, we need to
@@ -111,7 +138,7 @@ function go() {
 function getPReactCommands() {
   return {
     ...prefixKeys('react.', getCommands()),
-    ...prefixKeys('preact.', getCommands({ preact: true })),
+    ...prefixKeys('preact.', getCommands({preact: true})),
   }
 }
 
@@ -122,7 +149,7 @@ function prefixKeys(prefix, object) {
   }, {})
 }
 
-function getCommands({ preact = false } = {}) {
+function getCommands({preact = false} = {}) {
   return formats.reduce((cmds, format) => {
     const [formatName, minify = false] = format.split('.')
     const nodeEnv = minify ? 'production' : 'development'

@@ -1,7 +1,7 @@
 const path = require('path')
 const spawn = require('cross-spawn')
 const yargsParser = require('yargs-parser')
-const { resolveBin, hasFile, hasLocalConfig } = require('../utils')
+const {resolveBin, hasFile, hasLocalConfig} = require('../utils')
 
 const args = process.argv.slice(2)
 const parsedArgs = yargsParser(args)
@@ -30,12 +30,12 @@ const relativeArgs = args.map(a => a.replace(`${process.cwd()}/`, ''))
 
 const filesToApply = parsedArgs._.length
   ? []
-  : ['**/*.+(js|json|less|css|ts|tsx|md)']
+  : ['**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|gql|graphql|mdx|vue)']
 
 const result = spawn.sync(
   resolveBin('prettier'),
   [...config, ...ignore, ...write, ...filesToApply].concat(relativeArgs),
-  { stdio: 'inherit' },
+  {stdio: 'inherit'},
 )
 
 process.exit(result.status)

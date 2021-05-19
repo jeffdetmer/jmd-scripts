@@ -1,7 +1,6 @@
 # Maintaining
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 **Table of Contents**
@@ -62,7 +61,7 @@ to release. See the next section on Releases for more about that.
 
 ## Release
 
-Our releases are automatic. They happen whenever code lands into `master`. A
+Our releases are automatic. They happen whenever code lands into `main`. A
 GitHub Action gets kicked off and if it's successful, a tool called
 [`semantic-release`](https://github.com/semantic-release/semantic-release) is
 used to automatically publish a new release to npm as well as a changelog to

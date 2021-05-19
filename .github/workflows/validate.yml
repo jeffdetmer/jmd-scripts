@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - '+([0-9])?(.{+([0-9]),x}).x'
-      - 'master'
+      - 'main'
       - 'next'
       - 'next-major'
       - 'beta'
@@ -17,19 +17,17 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node: [10.18, 12, 14, 15]
+        node: [12, 14, 16]
     runs-on: ${{ matrix.os }}
     steps:
       - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.6.0
-        with:
-          access_token: ${{ secrets.GITHUB_TOKEN }}
+        uses: styfle/cancel-workflow-action@0.9.0
 
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v2
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
 
@@ -48,20 +46,18 @@ jobs:
     needs: main
     runs-on: ubuntu-latest
     if:
-      ${{ github.repository == 'shellthor/jmd-scripts' &&
-      contains('refs/heads/master,refs/heads/beta,refs/heads/next,refs/heads/alpha',
+      ${{ github.repository == 'jeffdetmer/jmd-scripts' &&
+      contains('refs/heads/main,refs/heads/beta,refs/heads/next,refs/heads/alpha',
       github.ref) && github.event_name == 'push' }}
     steps:
       - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.6.0
-        with:
-          access_token: ${{ secrets.GITHUB_TOKEN }}
+        uses: styfle/cancel-workflow-action@0.9.0
 
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v2
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v2
         with:
           node-version: 14
 
@@ -80,7 +76,7 @@ jobs:
           branches: |
             [
               '+([0-9])?(.{+([0-9]),x}).x',
-              'master',
+              'main',
               'next',
               'next-major',
               {name: 'beta', prerelease: true},

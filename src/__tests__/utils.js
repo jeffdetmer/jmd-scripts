@@ -1,42 +1,46 @@
 jest.mock('read-pkg-up', () => ({
-  sync: jest.fn(() => ({ packageJson: {}, path: '/blah/package.json' })),
+  sync: jest.fn(() => ({packageJson: {}, path: '/blah/package.json'})),
 }))
-jest.mock('which', () => ({ sync: jest.fn(() => {}) }))
+jest.mock('which', () => ({sync: jest.fn(() => {})}))
 
 jest.mock('cosmiconfig', () => {
   const cosmiconfigExports = jest.requireActual('cosmiconfig')
-  return { ...cosmiconfigExports, cosmiconfigSync: jest.fn() }
+  return {...cosmiconfigExports, cosmiconfigSync: jest.fn()}
 })
 
-let whichSyncMock, readPkgUpSyncMock
+jest.mock('cpy')
+
+let whichSyncMock, readPkgUpSyncMock, cpy, nodePath
 
 beforeEach(() => {
   jest.resetModules()
+  nodePath = require('path')
   whichSyncMock = require('which').sync
   readPkgUpSyncMock = require('read-pkg-up').sync
+  cpy = require('cpy')
 })
 
 test('package is the package.json', () => {
-  const myPkg = { name: 'blah' }
-  mockPkg({ package: myPkg })
+  const myPkg = {name: 'blah'}
+  mockPkg({package: myPkg})
   expect(require('../utils').pkg).toBe(myPkg)
 })
 
 test('appDirectory is the dirname to the package.json', () => {
   const pkgPath = '/some/path/to'
-  mockPkg({ path: `${pkgPath}/package.json` })
+  mockPkg({path: `${pkgPath}/package.json`})
   expect(require('../utils').appDirectory).toBe(pkgPath)
 })
 
 test('resolveJmdScripts resolves to src/index.js when in the jmd-scripts package', () => {
-  mockPkg({ package: { name: 'jmd-scripts' } })
+  mockPkg({package: {name: 'jmd-scripts'}})
   expect(require('../utils').resolveJmdScripts()).toBe(
     require.resolve('../').replace(process.cwd(), '.'),
   )
 })
 
 test('resolveJmdScripts resolves to jmd-scripts if not in the jmd-scripts package', () => {
-  mockPkg({ package: { name: 'not-jmd-scripts' } })
+  mockPkg({package: {name: 'not-jmd-scripts'}})
   whichSyncMock.mockImplementationOnce(() => require.resolve('../'))
   expect(require('../utils').resolveJmdScripts()).toBe('jmd-scripts')
 })
@@ -60,7 +64,7 @@ describe('for windows', () => {
   let realpathSync
 
   beforeEach(() => {
-    jest.doMock('fs', () => ({ realpathSync: jest.fn() }))
+    jest.doMock('fs', () => ({realpathSync: jest.fn()}))
     realpathSync = require('fs').realpathSync
   })
   afterEach(() => {
@@ -97,47 +101,47 @@ test('getConcurrentlyArgs gives good args to pass to concurrently', () => {
 })
 
 test('parseEnv parses the existing environment variable', () => {
-  const globals = { react: 'React', 'prop-types': 'PropTypes' }
+  const globals = {react: 'React', 'prop-types': 'PropTypes'}
   process.env.BUILD_GLOBALS = JSON.stringify(globals)
   expect(require('../utils').parseEnv('BUILD_GLOBALS')).toEqual(globals)
   delete process.env.BUILD_GLOBALS
 })
 
 test(`parseEnv returns the default if the environment variable doesn't exist`, () => {
-  const defaultVal = { hello: 'world' }
+  const defaultVal = {hello: 'world'}
   expect(require('../utils').parseEnv('DOES_NOT_EXIST', defaultVal)).toBe(
     defaultVal,
   )
 })
 
 test('ifAnyDep returns the true argument if true and false argument if false', () => {
-  mockPkg({ package: { peerDependencies: { react: '*' } } })
-  const t = { a: 'b' }
-  const f = { c: 'd' }
+  mockPkg({package: {peerDependencies: {react: '*'}}})
+  const t = {a: 'b'}
+  const f = {c: 'd'}
   expect(require('../utils').ifAnyDep('react', t, f)).toBe(t)
   expect(require('../utils').ifAnyDep('preact', t, f)).toBe(f)
 })
 
 test('ifAnyDep works with arrays of dependencies', () => {
-  mockPkg({ package: { peerDependencies: { react: '*' } } })
-  const t = { a: 'b' }
-  const f = { c: 'd' }
+  mockPkg({package: {peerDependencies: {react: '*'}}})
+  const t = {a: 'b'}
+  const f = {c: 'd'}
   expect(require('../utils').ifAnyDep(['preact', 'react'], t, f)).toBe(t)
   expect(require('../utils').ifAnyDep(['preact', 'webpack'], t, f)).toBe(f)
 })
 
 test('ifScript returns the true argument if true and the false argument if false', () => {
-  mockPkg({ package: { scripts: { build: 'echo build' } } })
-  const t = { e: 'f' }
-  const f = { g: 'h' }
+  mockPkg({package: {scripts: {build: 'echo build'}}})
+  const t = {e: 'f'}
+  const f = {g: 'h'}
   expect(require('../utils').ifScript('build', t, f)).toBe(t)
   expect(require('../utils').ifScript('lint', t, f)).toBe(f)
 })
 
 test('ifFile returns the true argument if true and the false argument if false', () => {
-  mockPkg({ path: require.resolve('../../package.json') })
-  const t = { e: 'f' }
-  const f = { g: 'h' }
+  mockPkg({path: require.resolve('../../package.json')})
+  const t = {e: 'f'}
+  const f = {g: 'h'}
   expect(require('../utils').ifFile('package.json', t, f)).toBe(t)
   expect(require('../utils').ifFile('does-not-exist.blah', t, f)).toBe(f)
 })
@@ -149,23 +153,40 @@ test('hasLocalConfiguration returns false if no local configuration found', () =
 })
 
 test('hasLocalConfig returns true if a local configuration found', () => {
-  mockCosmiconfig({ config: {}, filepath: 'path/to/config' })
+  mockCosmiconfig({config: {}, filepath: 'path/to/config'})
 
   expect(require('../utils').hasLocalConfig('module')).toBe(true)
 })
 
 test('hasLocalConfiguration returns true if a local config found and it is empty', () => {
-  mockCosmiconfig({ isEmpty: true })
+  mockCosmiconfig({isEmpty: true})
 
   expect(require('../utils').hasLocalConfig('module')).toBe(true)
 })
 
-function mockPkg({ package: pkg = {}, path = '/blah/package.json' }) {
-  readPkgUpSyncMock.mockImplementationOnce(() => ({ packageJson: pkg, path }))
+test('should generate typescript definitions into provided folder', async () => {
+  whichSyncMock.mockImplementationOnce(() => require.resolve('../'))
+  const {sync: crossSpawnSyncMock} = require('cross-spawn')
+  await require('../utils').generateTypeDefs('destination folder')
+  expect(crossSpawnSyncMock).toHaveBeenCalledTimes(1)
+  const args = crossSpawnSyncMock.mock.calls[0][1]
+  const outDirIndex = args.findIndex(arg => arg === '--outDir') + 1
+
+  expect(args[outDirIndex]).toBe('destination folder')
+
+  expect(cpy).toHaveBeenCalledTimes(1)
+  expect(cpy).toHaveBeenCalledWith('**/*.d.ts', '../dist', {
+    cwd: `${nodePath.sep}blah${nodePath.sep}src`,
+    parents: true,
+  })
+})
+
+function mockPkg({package: pkg = {}, path = '/blah/package.json'}) {
+  readPkgUpSyncMock.mockImplementationOnce(() => ({packageJson: pkg, path}))
 }
 
 function mockCosmiconfig(result = null) {
-  const { cosmiconfigSync } = require('cosmiconfig')
+  const {cosmiconfigSync} = require('cosmiconfig')
 
-  cosmiconfigSync.mockImplementationOnce(() => ({ search: () => result }))
+  cosmiconfigSync.mockImplementationOnce(() => ({search: () => result}))
 }

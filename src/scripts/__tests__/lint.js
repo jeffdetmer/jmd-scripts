@@ -1,11 +1,7 @@
 import cases from 'jest-in-case'
-import {
-  unquoteSerializer,
-  winPathSerializer,
-  relativePathSerializer,
-} from './helpers/serializers'
 
-expect.addSnapshotSerializer(unquoteSerializer)
+import {winPathSerializer, relativePathSerializer} from './helpers/serializers'
+
 expect.addSnapshotSerializer(winPathSerializer)
 expect.addSnapshotSerializer(relativePathSerializer)
 
@@ -19,13 +15,13 @@ cases(
     setup = () => () => {},
   }) => {
     // beforeEach
-    const { sync: crossSpawnSyncMock } = require('cross-spawn')
+    const {sync: crossSpawnSyncMock} = require('cross-spawn')
     const originalArgv = process.argv
     const originalExit = process.exit
     Object.assign(utils, {
       hasPkgProp,
       hasFile,
-      resolveBin: (modName, { executable = modName } = {}) => executable,
+      resolveBin: (modName, {executable = modName} = {}) => executable,
     })
     process.exit = jest.fn()
     const teardown = setup()

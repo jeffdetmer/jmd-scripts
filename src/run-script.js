@@ -38,7 +38,7 @@ May the force be with you.
 
 function getEnv() {
   // this is required to address an issue in cross-spawn
-  // https://github.com/kentcdodds/kcd-scripts/issues/4
+  // https://github.com/jeffdetmer/jmd-scripts/issues/4
   return Object.keys(process.env)
     .filter(key => process.env[key] !== undefined)
     .reduce(
@@ -47,7 +47,7 @@ function getEnv() {
         return envCopy
       },
       {
-        [`SCRIPTS_${script.toUpperCase()}`]: true,
+        [`SCRIPTS_${script.toUpperCase().replace(/-/g, '_')}`]: true,
       },
     )
 }
