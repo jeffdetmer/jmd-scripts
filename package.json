@@ -48,7 +48,7 @@
     "@rollup/plugin-replace": "^2.4.2",
     "@types/jest": "^26.0.23",
     "arrify": "^2.0.1",
-    "babel-jest": "^26.6.3",
+    "babel-jest": "^29.1.2",
     "babel-plugin-macros": "^3.1.0",
     "babel-plugin-minify-dead-code-elimination": "^0.5.1",
     "babel-plugin-module-resolver": "^4.1.0",
