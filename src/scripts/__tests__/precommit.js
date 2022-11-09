@@ -31,9 +31,13 @@ cases(
       expect(crossSpawnSyncMock).toHaveBeenCalledTimes(2)
       const [firstCall, secondCall] = crossSpawnSyncMock.mock.calls
       const [scriptOne, calledArgsOne] = firstCall
-      expect([scriptOne, ...calledArgsOne].join(' ')).toMatchSnapshot()
+      expect([scriptOne, ...calledArgsOne].join(' ')).toMatchSnapshot(
+        'first script',
+      )
       const [scriptTwo, calledArgsTwo] = secondCall
-      expect([scriptTwo, ...calledArgsTwo].join(' ')).toMatchSnapshot()
+      expect([scriptTwo, ...calledArgsTwo].join(' ')).toMatchSnapshot(
+        'second script',
+      )
     } catch (error) {
       throw error
     } finally {
