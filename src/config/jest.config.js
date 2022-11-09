@@ -21,7 +21,9 @@ const jestConfig = {
     'jsdom',
     'node',
   ),
-  testURL: 'http://localhost',
+  testEnvironmentOptions: {
+    url: 'http://localhost',
+  },
   moduleFileExtensions: ['js', 'jsx', 'json', 'ts', 'tsx'],
   moduleDirectories: [
     'node_modules',
